@@ -585,7 +585,7 @@ html {
 #play-btn,
 #prev-btn,
 #next-btn,
-#shuffle-btn,
+#volume-btn,
 #loop-btn {
   display: inline-flex;
   align-items: center;
@@ -610,4 +610,41 @@ html {
 
 .player-controls i {
   font-size: 20px;
+}
+
+
+#loop-btn.active {
+  background-color: var(--main-color);
+  color: var(--background-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+
+#volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: linear-gradient(90deg, var(--main-color) 0%, var(--main-color) 50%, #3a3a3a 50%, #3a3a3a 100%);
+  border-radius: 6px;
+  outline: none;
+}
+#volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--second-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+#volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--second-color);
+  border: none;
+  cursor: pointer;
 }

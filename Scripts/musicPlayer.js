@@ -9,13 +9,38 @@
     const playBtn = container.querySelector('#play-btn');
     const prevBtn = container.querySelector('#prev-btn');
     const nextBtn = container.querySelector('#next-btn');
-
-
-    const audio = document.createElement('audio');
+    const loopBtn = container.querySelector('#loop-btn');
+    const volumeBtn = container.querySelector('#volume-btn');
+    // create the audio element first (required before initializing slider)
+  const audio = document.createElement('audio');
     audio.id = 'audio-element';
     audio.preload = 'metadata';
     audio.style.display = 'none';
+  // start volume at 100% as requested
+  audio.volume = 1;
     container.appendChild(audio);
+
+    // create or locate a volume slider inside player-controls
+    const controlsEl = container.querySelector('.player-controls');
+    let volumeSlider = controlsEl ? controlsEl.querySelector('#volume-slider') : null;
+    if (!volumeSlider && controlsEl) {
+      volumeSlider = document.createElement('input');
+      volumeSlider.type = 'range';
+      volumeSlider.id = 'volume-slider';
+      volumeSlider.min = 0;
+      volumeSlider.max = 1;
+      volumeSlider.step = 0.01;
+      volumeSlider.value = (typeof audio.volume === 'number') ? audio.volume : 1;
+      // hidden by default; will be toggled when user clicks the volume button
+      volumeSlider.style.display = 'none';
+      volumeSlider.setAttribute('title', 'Volume');
+      // small inline style; can be overridden by CSS
+      volumeSlider.style.width = '96px';
+      volumeSlider.style.marginLeft = '8px';
+      // insert the slider after the volume button if possible
+      if (volumeBtn && volumeBtn.parentNode) volumeBtn.parentNode.insertBefore(volumeSlider, volumeBtn.nextSibling);
+      else if (controlsEl) controlsEl.appendChild(volumeSlider);
+    }
 
 
     let progressBar = container.querySelector('.progress-bar');
@@ -65,6 +90,62 @@
   if (playBtn) playBtn.addEventListener('click', function () { togglePlayPause(); });
   if (prevBtn) prevBtn.addEventListener('click', function () { if (state.currentIndex > 0) { loadByIndex(state.currentIndex - 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
   if (nextBtn) nextBtn.addEventListener('click', function () { if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
+
+  // loop toggle: enable/disable HTMLAudioElement.loop
+  if (loopBtn) {
+    loopBtn.addEventListener('click', function () {
+      audio.loop = !audio.loop;
+      loopBtn.classList.toggle('active', audio.loop);
+      try { container.dispatchEvent(new CustomEvent('player:loop', { detail: { loop: audio.loop } })); } catch (e) {}
+    });
+  }
+
+  // volume handling: slider + mute/unmute toggle with icon update
+    if (volumeBtn) {
+      // remember previous non-zero volume to restore if needed
+      let prevVolume = audio.volume || 1;
+      function updateVolumeIcon() {
+        if (!volumeBtn) return;
+        // remove potential classes
+        volumeBtn.classList.remove('bx-volume-mute','bx-volume-low','bx-volume','bx-volume-full');
+        const vol = Number(audio.volume || 0);
+        if (vol === 0) {
+          volumeBtn.classList.add('bx-volume-mute');
+        } else if (vol < 0.35) {
+          volumeBtn.classList.add('bx-volume-low');
+        } else if (vol < 0.75) {
+          volumeBtn.classList.add('bx-volume');
+        } else {
+          volumeBtn.classList.add('bx-volume-full');
+        }
+      }
+
+      // clicking volume button toggles visibility of the slider only
+      volumeBtn.addEventListener('click', function (e) {
+        if (!volumeSlider) return;
+        const isHidden = volumeSlider.style.display === 'none' || volumeSlider.style.display === '';
+        volumeSlider.style.display = isHidden ? 'inline-block' : 'none';
+        if (isHidden) {
+          // ensure slider reflects current volume
+          volumeSlider.value = audio.volume;
+          volumeSlider.focus();
+        }
+      });
+
+      // slider changes volume
+      if (volumeSlider) {
+        volumeSlider.addEventListener('input', function () {
+          const v = Number(volumeSlider.value);
+          audio.volume = v;
+          if (v > 0) prevVolume = v;
+          updateVolumeIcon();
+          try { container.dispatchEvent(new CustomEvent('player:volume', { detail: { muted: v === 0, volume: audio.volume } })); } catch (e) {}
+        });
+      }
+
+      // set initial icon state
+      updateVolumeIcon();
+    }
 
     audio.addEventListener('timeupdate', function () {
       if (!audio.duration) return;
