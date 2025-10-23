@@ -103,7 +103,8 @@
 
           <div class="search">
             <i class="bx bx-search-alt-2"></i>
-            <input type="text" placeholder="Find new songs here" />
+            <input id="search-input" type="text" placeholder="Find new songs here" autocomplete="off" />
+            <div id="search-results" class="search-results" aria-live="polite"></div>
           </div>
         </header>
 
@@ -122,35 +123,31 @@
               </div>
           </div>
                <div class="slideshow">
-                <img src="" alt="Change to the top 5 trending songs" id="slide-image">
+                <img src="" alt="Change though top 4 trending songs" id="slide-image">
                </div>
         </div>
 
         <div class="lists-grid">
-             <div class="suggestion-list">
-            <div class="header">
-              <h3>Suggestions</h3>
-            </div>
-            <div class="items" id="suggestions">
-              <!-- Suggestions will be added here based on user -->
-            </div>
-          </div>
-          
           <div class="music-list">
             <div class="header">
-              <h3>Top Songs</h3>
-              <a href="#" id="show-all-songs">See all</a>
+              <a href="#" id="show-all-songs">Top 5</a>
         <div class="items" id="audio">
-          <!-- get top 5 most played song and display here -->
         <div id="music-items" class="music-items"></div>
         </div>
             </div>
           </div>
-
         </div>
 
         <div class="main-list">
-          <!-- all the files will be show here and be displayed with array funcion and make so that when the user clicks on the genre-item change the display of the list,each fill will change the music player set on the right side -->
+          <div class="main-list-header">
+            <h2>Song List</h2>
+            <div class="genre-filters">
+              <label for="genre-select">Filter by genre:</label>
+              <select id="genre-select">
+                <option value="">All genres</option>
+              </select>
+            </div>
+          </div>
         </div>
          <footer class="copyright-section">
         <h2>@test</h2>

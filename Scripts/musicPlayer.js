@@ -42,11 +42,13 @@
       if (img && m.cover) img.src = m.cover;
       // increment play count in mock
       if (window.DataService && typeof DataService.incrementPlayCount === 'function') DataService.incrementPlayCount(m.id);
+      // notify listeners that a track was loaded (index detail)
+      try { container.dispatchEvent(new CustomEvent('player:loaded', { detail: { index: state.currentIndex, track: m } })); } catch (e) { }
     }
 
     function togglePlayPause() {
-      if (audio.paused) { audio.play(); setPlayIcon(false); }
-      else { audio.pause(); setPlayIcon(true); }
+      if (audio.paused) { audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) { } }
+      else { audio.pause(); setPlayIcon(true); try { container.dispatchEvent(new CustomEvent('player:pause', { detail: { index: state.currentIndex } })); } catch (e) { } }
     }
 
     function setPlayIcon(isPlay) {
@@ -60,9 +62,9 @@
       }
     }
 
-    if (playBtn) playBtn.addEventListener('click', function () { togglePlayPause(); });
-    if (prevBtn) prevBtn.addEventListener('click', function () { if (state.currentIndex > 0) { loadByIndex(state.currentIndex - 1); audio.play(); setPlayIcon(false); } });
-    if (nextBtn) nextBtn.addEventListener('click', function () { if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); setPlayIcon(false); } });
+  if (playBtn) playBtn.addEventListener('click', function () { togglePlayPause(); });
+  if (prevBtn) prevBtn.addEventListener('click', function () { if (state.currentIndex > 0) { loadByIndex(state.currentIndex - 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
+  if (nextBtn) nextBtn.addEventListener('click', function () { if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
 
     audio.addEventListener('timeupdate', function () {
       if (!audio.duration) return;
@@ -71,8 +73,8 @@
     });
 
     audio.addEventListener('ended', function () {
-      if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); }
-      else setPlayIcon(true);
+      if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} }
+      else { setPlayIcon(true); try { container.dispatchEvent(new CustomEvent('player:pause', { detail: { index: state.currentIndex } })); } catch (e) {} }
     });
 
     return {
@@ -84,7 +86,7 @@
         }
         if (state.list.length > 0 && state.currentIndex === -1) loadByIndex(0);
       },
-      playIndex: function (i) { loadByIndex(i); audio.play(); setPlayIcon(false); },
+      playIndex: function (i) { loadByIndex(i); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} },
       getCurrent: function () { return state.list[state.currentIndex] || null; }
     };
   }
