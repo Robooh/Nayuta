@@ -98,7 +98,7 @@
               <i class="bx bx-menu"></i> -->
             </button>
             <a href="#">Music</a>
-            <a href="#">Live</a>
+            <a href="#">Player</a>
           </div>
 
           <div class="search">
@@ -131,7 +131,7 @@
             <div class="header">
               <h3>Suggestions</h3>
             </div>
-            <div class="items">
+            <div class="items" id="suggestions">
               <!-- Suggestions will be added here based on user -->
             </div>
           </div>
@@ -140,194 +140,13 @@
             <div class="header">
               <h3>Top Songs</h3>
               <a href="#" id="show-all-songs">See all</a>
-              <div class="items" id="audio">
-                 <div class="item">
-                              <div class="info">
-                                  <p>01</p>
-                                  <img src="Src/Card-img/Target.jpg" alt="archive" id="song-cover">
-                                  <div class="details">
-                                      <h5 id="song-title">Target for Love</h5>
-                                      <p id="song-artist">Lee Jin-ah</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:32</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow' onclick="loadMusic(songs[1])"></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item">
-                              <div class="info">
-                                  <p>02</p>
-                                  <img src="Src/Card-img/Speed.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Speed</h5>
-                                      <p>Artist 2</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>04:15</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item">
-                              <div class="info">
-                                  <p>03</p>
-                                  <img src="Src/Card-img/Dream.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Dream</h5>
-                                      <p>Artist 3</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:45</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item">
-                              <div class="info">
-                                  <p>04</p>
-                                  <img src="Src/Card-img/Luv.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Luv</h5>
-                                      <p>Artist 4</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:20</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item">
-                              <div class="info">
-                                  <p>05</p>
-                                  <img src="Src/Card-img/Guitar.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Guitar</h5>
-                                      <p>Artist 5</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>04:00</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item hidden">
-                              <div class="info">
-                                  <p>06</p>
-                                  <img src="Src/Card-img/Lost.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Lost Desire</h5>
-                                      <p>Artist 6</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:50</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item hidden">
-                              <div class="info">
-                                  <p>07</p>
-                                  <img src="Src/Card-img/Curse.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Curse</h5>
-                                      <p>Artist 7</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>04:10</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item hidden">
-                              <div class="info">
-                                  <p>08</p>
-                                  <img src="Src/Card-img/After.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>After</h5>
-                                      <p>Artist 8</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:30</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item hidden">
-                              <div class="info">
-                                  <p>09</p>
-                                  <img src="Src/Card-img/W.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>W Theme</h5>
-                                      <p>Artist 9</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>04:05</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-                 <div class="item hidden">
-                              <div class="info">
-                                  <p>10</p>
-                                  <img src="Src/Card-img/Target.jpg" alt="archive">
-                                  <div class="details">
-                                      <h5>Extra Song</h5>
-                                      <p>Artist 10</p>
-                                  </div>
-                              </div>
-                              <div class="actions">
-                                  <p>03:40</p>
-                                  <div class="icon">
-                                      <i class='bx bxs-right-arrow'></i>
-                                  </div>
-                                  <i class='bx bxs-plus-square'></i>
-                              </div>
-                          </div>
-              </div>
+        <div class="items" id="audio">
+          <!-- get top 5 most played song and display here -->
+        <div id="music-items" class="music-items"></div>
+        </div>
             </div>
           </div>
 
-          <div class="genres-list">
-            <div class="header">
-              <h3>Genres</h3>
-            </div>
-            <div class="items">
-              <div class="genre-item" data-genre="pop">Pop</div>
-              <div class="genre-item" data-genre="rock">Rock</div>
-              <div class="genre-item" data-genre="jazz">Jazz</div>
-              <div class="genre-item" data-genre="hip-hop">Hip-Hop</div>
-              <div class="genre-item" data-genre="classical">Classical</div>
-              <div class="genre-item" data-genre="electronic">Electronic</div>
-            </div>
-          </div>
         </div>
 
         <div class="main-list">
@@ -353,43 +172,31 @@
             </div>
           </div>
         </div>
-
-        <div class="music-player" id="player">
           <div class="player">
-            <div class="player_inner">
-              <div class="player_inner_top">
-                <div class="t_left"><i class="fa fa-bars"></i></div>
-                <div class="t_mid">CUB3DPlayer</div>
-              </div>
-              <div class="player_inner_middle">
-                <div class="cube">
-                  <div class="cube_face front"></div>
-                  <div class="cube_face back"></div>
-                  <div class="cube_face right"></div>
-                  <div class="cube_face left"></div>
-                  <div class="cube_face top"></div>
-                  <div class="cube_face bottom"></div>
-                </div>
-              </div>
-              <div class="player_inner_bottom">
-                <div class="controls">
-                  <button class="prev-btn" title="Previous"><i class="bx bx-skip-previous"></i></button>
-                  <button class="play-btn" id="play-btn" title="Play/Pause"><i class="bx bx-play"></i></button>
-                  <button class="next-btn" title="Next"><i class="bx bx-skip-next"></i></button>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress"></div>
-                </div>
-                <!-- <div class="time"><span>Timer content will be add here </span>  </div> -->
+          <div class="player-top">
+            <div class="song-info">
+              <img src="" alt="song-img"/>
+              <div class="song-details">
+                <h4 id="player-song-title">Song Title</h4>
+                <p id="player-song-artist">Artist Name</p>
               </div>
             </div>
+            <div class="player-controls">
+              <i class="bx bx-shuffle" id="shuffle-btn"></i>
+              <i class="bx bx-skip-previous" id="prev-btn"></i>
+              <i class="bx bx-play-circle" id="play-btn"></i>
+              <i class="bx bx-skip-next" id="next-btn"></i>
+              <i class="bx bx-repeat" id="loop-btn"></i>
+            </div>
           </div>
-        </div>
+
+        
       </div>
     </div>
     
 
-    <script src="Scripts/Player3D.js"></script>
+    <script src="Scripts/dataService.js"></script>
+    <script src="Scripts/musicPlayer.js"></script>
     <script src="Scripts/Script.js"></script>
   </body>
 </html>
