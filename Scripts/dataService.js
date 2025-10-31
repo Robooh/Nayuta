@@ -13,7 +13,11 @@
     { id: 6, title: "Let's Play A Game!", artist: 'Vanguard S.S', audio: 'Src/Music/Let Play A Game - Vanguard S.S.mp3', cover: 'Src/Card-img/Let\'s Play.jpg', genre: 'Electronic', timesPlayed: 40 },
     { id: 7, title: 'Resolute Secation', artist: 'Vanguard S.S', audio: 'Src/Music/Resolute Secation - Vanguard S.S.mp3', cover: 'Src/Card-img/PoP - Resolute.jpg', genre: 'Rock', timesPlayed: 95 },
     { id: 8, title: 'Tetoris', artist: 'Teto', audio: 'Src/Music/Tetoris - Teto.mp3', cover: 'Src/Card-img/Tetoris.png', genre: 'Pop', timesPlayed: 30 },
-    { id: 9, title: 'UNDEAD', artist: 'YOASOBI', audio: 'Src/Music/UNDEAD - YOASOBI.mp3', cover: 'Src/Card-img/Undead.jpg', genre: 'Pop', timesPlayed: 180 }
+    { id: 9, title: 'UNDEAD', artist: 'YOASOBI', audio: 'Src/Music/UNDEAD - YOASOBI.mp3', cover: 'Src/Card-img/Undead.jpg', genre: 'Pop', timesPlayed: 2984 },
+    { id: 10, title: 'ラビットホール', artist: 'DECO*27', audio: 'Src/Music/RabitHole.mp3', cover: 'Src/Card-img/Rh.jpg', genre: 'Pop', timesPlayed: 3100 },
+    { id: 11, title: 'Travelers', artist: 'Andrew Prahlow', audio: 'Src/Music/Travelers.mp3', cover: 'Src/Card-img/Ow.jpg', genre: 'Pop', timesPlayed: 5000},
+    { id: 12, title: 'Assault TAXI ', artist: '∀Ｓ∀', audio: 'Src/Music/Taxi.mp3', cover: 'Src/Card-img/Taxi.jpg', genre: 'Eletronic', timesPlayed: 190 }
+   
   ];
 
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }

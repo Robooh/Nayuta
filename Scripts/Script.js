@@ -122,37 +122,50 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Top Songs: populate #music-items with top 5 tracks
-  function renderTopSongs() {
+  // Suggested list based on DataService timesPlayed + per-user localStorage play counts
+  function renderSuggested() {
     const container = document.getElementById('music-items');
     if (!container) return;
     container.innerHTML = '';
-    const top = DataService.getTop5() || [];
-    top.forEach((t, idx) => {
+    // base data
+    const all = (DataService.getAll() || []).map(x => Object.assign({}, x));
+    // merge in per-user play counts
+    let userPlays = {};
+    try { userPlays = JSON.parse(localStorage.getItem('nayuta_play_counts') || '{}'); } catch (e) { userPlays = {}; }
+    all.forEach(t => {
+      const extra = Number(userPlays[t.id] || 0);
+      t._score = (Number(t.timesPlayed || 0) + extra);
+    });
+    const suggested = all.slice().sort((a,b)=>b._score - a._score).slice(0,5);
+    suggested.forEach((t, idx) => {
       const item = document.createElement('div');
       item.className = 'top-item';
-      // include rank, title, artist, genre and plays
       item.innerHTML = `<div class="top-item-left"><img src="${t.cover || 'Src/Card-img/Undead.jpg'}" alt="${t.title}"/></div>
         <div class="top-item-right">
           <div class="top-item-meta"><span class="rank">#${idx+1}</span><span class="genre">${t.genre || ''}</span></div>
           <h5 class="top-title">${t.title}</h5>
           <p class="top-artist">${t.artist}</p>
-          <small class="plays">Plays: ${t.timesPlayed || 0}</small>
+          <small class="plays">Plays: ${t._score || 0}</small>
         </div>`;
       item.addEventListener('click', function () {
-        // load the top list into player and play the clicked index
         if (!player) return;
-        const topList = DataService.getTop5();
-        player.loadList(topList);
+        // load full ordered suggested list into player and play selected index
+        player.loadList(suggested);
         player.playIndex(idx);
+        // increment per-user play count
+        try {
+          userPlays[t.id] = Number(userPlays[t.id] || 0) + 1;
+          localStorage.setItem('nayuta_play_counts', JSON.stringify(userPlays));
+        } catch (e) {}
       });
       container.appendChild(item);
     });
   }
 
   // initial top songs render
-  renderTopSongs();
-  // refresh top songs periodically in case counts change
-  setInterval(renderTopSongs, 5000);
+  renderSuggested();
+  // refresh suggested list periodically in case counts change
+  setInterval(renderSuggested, 5000);
 
   // Slideshow for trending: cycle through top 5 covers and update left info
   (function initSlideshow() {
@@ -193,6 +206,239 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tick();
     setInterval(tick, 6000);
+  })();
+
+  // Mobile layout adjustments: show only Playlist menu, move profile into sidebar and move player out
+  (function initMobileLayout() {
+    const breakpoint = 992;
+    const sidebar = document.querySelector('.container .sidebar');
+    const rightSection = document.querySelector('.container .right-section');
+    const playerEl = document.querySelector('.container .right-section .player');
+    const rightProfile = rightSection ? rightSection.querySelector('.profile') : null;
+    let playerOriginalParent = playerEl ? playerEl.parentNode : null;
+
+    function applyLayout() {
+      const isMobile = window.innerWidth <= breakpoint;
+      // menus: hide all .menu except the one that contains the create-playlist link
+      if (sidebar) {
+        const menus = Array.from(sidebar.querySelectorAll('.menu'));
+        menus.forEach(m => {
+          const hasPlaylist = !!m.querySelector('a[data-section="create-playlist"]');
+          m.style.display = isMobile ? (hasPlaylist ? 'block' : 'none') : '';
+        });
+      }
+
+      // profile: clone into sidebar on mobile, restore on desktop
+      if (rightProfile && sidebar) {
+        const existingClone = sidebar.querySelector('.profile-mobile-clone');
+        if (isMobile) {
+          if (!existingClone) {
+            const clone = rightProfile.cloneNode(true);
+            clone.classList.add('profile-mobile-clone');
+            // insert clone after logo
+            const logo = sidebar.querySelector('.logo');
+            if (logo && logo.parentNode) logo.parentNode.insertBefore(clone, logo.nextSibling);
+            else sidebar.insertBefore(clone, sidebar.firstChild);
+            // hide original to avoid duplicate
+            rightProfile.style.display = 'none';
+          }
+        } else {
+          if (existingClone) {
+            existingClone.remove();
+            rightProfile.style.display = '';
+          }
+        }
+      }
+
+      // player: move out of right-section into body for mobile so fixed positioning works
+      if (playerEl) {
+        if (isMobile) {
+          if (playerEl.parentNode !== document.body) {
+            // remember original parent if not set
+            if (!playerOriginalParent) playerOriginalParent = playerEl.parentNode;
+            document.body.appendChild(playerEl);
+            playerEl.classList.add('mobile-moved');
+          }
+        } else {
+          if (playerOriginalParent && playerEl.parentNode !== playerOriginalParent) {
+            playerOriginalParent.appendChild(playerEl);
+            playerEl.classList.remove('mobile-moved');
+            playerOriginalParent = null;
+          }
+        }
+      }
+    }
+
+    // run on load and resize
+    applyLayout();
+    window.addEventListener('resize', function () { applyLayout(); });
+    window.addEventListener('orientationchange', function () { setTimeout(applyLayout, 60); });
+  })();
+
+  // Sidebar interaction: map sections, use hash-based routing, persist selection, and render readable banner
+  (function initSidebarInteractions() {
+    const sidebarLinks = Array.from(document.querySelectorAll('.container .sidebar .menu ul li a[data-section]'));
+    const storageKey = 'nayuta_last_section';
+    const mainEl = document.querySelector('main');
+
+    const sectionTitles = {
+      'explore': 'Explore',
+      'albums': 'Albums',
+      'artists': 'Artists',
+      'recent': 'Recent',
+      'library-albums': 'Albums (Library)',
+      'favorites': 'Favorites',
+      'create-playlist': 'Create Playlist'
+    };
+
+    function renderBanner(key) {
+      let title = sectionTitles[key] || key || '';
+      let banner = document.getElementById('section-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'section-banner';
+        banner.style.padding = '10px 16px';
+        banner.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.02), transparent)';
+        banner.style.borderRadius = '8px';
+        banner.style.marginBottom = '12px';
+        const containerMain = mainEl.querySelector('.trending') || mainEl;
+        if (containerMain) containerMain.parentNode.insertBefore(banner, containerMain);
+      }
+      banner.textContent = title ? title : '';
+    }
+
+    function applySection(key, updateHash = true) {
+      if (!key) return;
+      sidebarLinks.forEach(a => a.classList.toggle('active', a.getAttribute('data-section') === key));
+      try { localStorage.setItem(storageKey, key); } catch (e) {}
+      renderBanner(key);
+      if (updateHash) {
+        const target = '#' + key;
+        if (location.hash !== target) location.hash = key;
+      }
+    }
+
+    // wire click handlers: set hash (routing will handle applying)
+    sidebarLinks.forEach(a => {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        const k = a.getAttribute('data-section');
+        applySection(k, true);
+      });
+    });
+
+    // respond to hash changes (back/forward and direct links)
+    window.addEventListener('hashchange', function () {
+      const key = window.location.hash.replace(/^#/, '');
+      if (key) applySection(key, false);
+    });
+
+    // initialize: prefer hash, then last saved, then first link
+    const initial = (window.location.hash && window.location.hash.replace(/^#/, '')) || localStorage.getItem(storageKey) || (sidebarLinks[0] && sidebarLinks[0].getAttribute('data-section'));
+    if (initial) applySection(initial, false);
+  })();
+
+  // Mobile menu open/close handlers
+  (function initMobileMenu() {
+    const menuOpen = document.getElementById('menu-open');
+    const menuClose = document.getElementById('menu-close');
+    const cont = document.querySelector('.container');
+    if (!cont) return;
+    function open() { cont.classList.add('sidebar-open'); }
+    function close() { cont.classList.remove('sidebar-open'); }
+    if (menuOpen) menuOpen.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+    if (menuClose) menuClose.addEventListener('click', function (e) { e.stopPropagation(); close(); });
+    // also close on outside click for mobile
+    document.addEventListener('click', function (e) { if (!cont.querySelector('.sidebar').contains(e.target)) close(); });
+  })();
+
+  // Onboarding modal: prompt for username and avatar on first visit
+  (function initOnboarding() {
+    const storageKey = 'nayuta_user';
+    const existing = localStorage.getItem(storageKey);
+    const onboardRoot = document.getElementById('onboard-root');
+    const profileNameEl = document.getElementById('profile-name');
+    const profileAvatarEls = document.querySelectorAll('.profile-avatar, .profile .user .left img');
+    const playingTopImg = document.querySelector('.container .sidebar .playing .top img');
+
+    function populateProfile(data) {
+      if (!data) return;
+      if (profileNameEl && data.name) profileNameEl.textContent = data.name;
+      if (data.avatar) {
+        profileAvatarEls.forEach(img => { img.src = data.avatar; });
+        if (playingTopImg) playingTopImg.src = data.avatar;
+      }
+    }
+
+    if (existing) {
+      try { const d = JSON.parse(existing); populateProfile(d); } catch (e) {}
+      return; // already set
+    }
+
+    // build modal
+    if (!onboardRoot) return;
+    onboardRoot.innerHTML = `
+      <div class="onboard-overlay" id="onboard-overlay">
+        <div class="onboard-card" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
+          <h3 id="onboard-title">Bem-vindo ao Nayuta</h3>
+          <div class="onboard-row">
+            <img id="onboard-preview" src="Src/Logo/Arisu 2.0.png" alt="avatar preview">
+            <div class="inputs">
+              <input id="onboard-name" class="onboard-input" placeholder="Qual nome você quer usar?" />
+              <input id="onboard-file" type="file" accept="image/*" class="onboard-input" />
+            </div>
+          </div>
+          <div class="onboard-actions">
+            <button id="onboard-skip" class="btn-secondary">Pular</button>
+            <button id="onboard-save" class="btn-primary">Salvar</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    onboardRoot.setAttribute('aria-hidden', 'false');
+
+    const overlay = document.getElementById('onboard-overlay');
+    const preview = document.getElementById('onboard-preview');
+    const inputName = document.getElementById('onboard-name');
+    const inputFile = document.getElementById('onboard-file');
+    const btnSave = document.getElementById('onboard-save');
+    const btnSkip = document.getElementById('onboard-skip');
+
+    let avatarData = preview.src;
+
+    inputFile.addEventListener('change', function (e) {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = function (ev) { avatarData = ev.target.result; preview.src = avatarData; };
+      reader.readAsDataURL(f);
+    });
+
+    function closeOnboard() {
+      if (onboardRoot) { onboardRoot.innerHTML = ''; onboardRoot.setAttribute('aria-hidden', 'true'); }
+    }
+
+    btnSave.addEventListener('click', function () {
+      const name = (inputName.value || '').trim() || 'User';
+      const data = { name: name, avatar: avatarData };
+      try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch (e) {}
+      populateProfile(data);
+      closeOnboard();
+    });
+
+    btnSkip.addEventListener('click', function () {
+      // set a placeholder to avoid showing again
+      const data = { name: 'User', avatar: preview.src };
+      try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch (e) {}
+      populateProfile(data);
+      closeOnboard();
+    });
+
+    // close on Esc or click outside
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeOnboard(); } });
+    overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeOnboard(); });
+
   })();
 
   // initial render
@@ -257,4 +503,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // poll for data changes every 2s (since DataService is in-memory mock)
   setInterval(function () { populateGenreSelect(); renderMainList(); }, 2000);
+  
+  // Profile actions: settings dropdown and notifications placeholder
+  (function initProfileActions() {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsDropdown = document.getElementById('settings-dropdown');
+    const notifyBtn = document.getElementById('notify-btn');
+    if (settingsBtn && settingsDropdown) {
+      const menuItems = Array.from(settingsDropdown.querySelectorAll('a[tabindex="-1"]'));
+
+      function closeMenu() {
+        settingsDropdown.classList.remove('open');
+        settingsDropdown.setAttribute('aria-hidden', 'true');
+        settingsBtn.setAttribute('aria-expanded', 'false');
+      }
+      function openMenu() {
+        settingsDropdown.classList.add('open');
+        settingsDropdown.setAttribute('aria-hidden', 'false');
+        settingsBtn.setAttribute('aria-expanded', 'true');
+      }
+
+      settingsBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (settingsDropdown.classList.contains('open')) closeMenu();
+        else openMenu();
+      });
+
+      // keyboard support for the button
+      settingsBtn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (settingsDropdown.classList.contains('open')) closeMenu(); else openMenu();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          openMenu();
+          // focus first item
+          if (menuItems.length > 0) menuItems[0].focus();
+        }
+      });
+
+      // close on outside click
+      document.addEventListener('click', function (ev) {
+        if (!settingsDropdown.contains(ev.target) && ev.target !== settingsBtn) {
+          closeMenu();
+        }
+      });
+
+      // handle keyboard navigation inside menu
+      settingsDropdown.addEventListener('keydown', function (e) {
+        const idx = menuItems.indexOf(document.activeElement);
+        if (e.key === 'Escape') { closeMenu(); settingsBtn.focus(); }
+        else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = (idx + 1) % menuItems.length; menuItems[next].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = (idx - 1 + menuItems.length) % menuItems.length; menuItems[prev].focus();
+        }
+      });
+    }
+    if (notifyBtn) {
+      notifyBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        // placeholder for notifications; could open a panel
+        notifyBtn.classList.add('active');
+        setTimeout(() => notifyBtn.classList.remove('active'), 600);
+      });
+    }
+  })();
 });

@@ -21,29 +21,28 @@
   <body>
     <div class="container">
       <aside class="sidebar">
-         <div class="logo">
-                <!-- <button class="menu-btn" id="menu-close" title="test"><i class='bx bx-log-out'></i>
-                </button> -->
-                <i class='bx bx-game'></i>
-                <a href="#">Nayuta</a>
-            </div>
+     <div class="logo">
+                <button class="menu-btn" id="menu-close" title="Fechar menu">&lt;</button>
+        <i class='bx bx-game'></i>
+        <a href="#">Nayuta</a>
+      </div>
         <div class="menu">
           <h5>Menu</h5>
           <ul>
             <li>
               <i class="bx bxs-bolt-circle"></i>
-              <a href="#">Explore</a>
+              <a href="#" data-section="explore">Explore</a>
             </li>
 
 
             <li>
               <i class="bx bxs-album"></i>
-              <a href="#">Albums</a>
+              <a href="#" data-section="albums">Albums</a>
             </li>
 
             <li>
               <i class="bx bx-male-female"></i>
-              <a href="#">Artists</a>
+              <a href="#" data-section="artists">Artists</a>
             </li>
           </ul>
         </div>
@@ -53,17 +52,17 @@
           <ul>
             <li>
               <i class="bx bx-undo"></i>
-              <a href="#">Recent</a>
+              <a href="#" data-section="recent">Recent</a>
             </li>
 
             <li>
               <i class="bx bx-photo-album"></i>
-              <a href="#">Albums</a>
+              <a href="#" data-section="library-albums">Albums</a>
             </li>
 
             <li>
               <i class="bx bxs-heart"></i>
-              <a href="#">Favorites</a>
+              <a href="#" data-section="favorites">Favorites</a>
             </li>
 
 
@@ -75,14 +74,14 @@
           <ul>
             <li>
               <i class="bx bxs-folder-plus"></i>
-              <a href="#">Create New</a>
+              <a href="#" data-section="create-playlist">Create New</a>
             </li>
           </ul>
         </div>
         <div class="playing">
           <div class="top">
             <img src="Src/Logo/Arisu 2.0.png" alt="Test" />
-            <h4>Asus<br />BlueSp</h4>
+           <h4>Asus<br />BlueSp</h4> 
           </div>
           <div class="bottom">
             <i class="bx bx-podcast"></i>
@@ -94,9 +93,7 @@
       <main>
         <header>
           <div class="nav-links">
-            <!-- <button class="menu-btn" id="menu-open" title="test">
-              <i class="bx bx-menu"></i> -->
-            </button>
+            <button class="menu-btn" id="menu-open" title="Abrir menu">&gt;</button>
             <a href="#">Music</a>
             <a href="#">Player</a>
           </div>
@@ -158,26 +155,47 @@
 
   <div class="right-section">
         <div class="profile">
-          <i class="bx bxs-bell"></i>
-          <i class="bx bxs-cog"></i>
           <div class="user">
             <div class="left">
-              <img src="Src/Logo/Arisu 2.0.png" alt="prof" />
+              <img src="Src/Logo/Arisu 2.0.png" alt="prof" class="profile-avatar" />
             </div>
             <div class="right">
-              <h5>Robo_oh</h5>
+              <h5 id="profile-name">Robo_oh</h5>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button class="icon-btn" id="notify-btn" title="Notificações"><i class="bx bxs-bell"></i></button>
+            <div class="settings-wrap">
+              <button class="icon-btn" id="settings-btn" title="Configurações" aria-haspopup="true" aria-expanded="false"><i class="bx bxs-cog"></i></button>
+              <div class="settings-dropdown" id="settings-dropdown" role="menu" aria-hidden="true">
+                <ul role="menu">
+                  <li role="menuitem"><a href="#" tabindex="-1">Perfil</a></li>
+                  <li role="menuitem"><a href="#" tabindex="-1">Configurações</a></li>
+                  <li role="menuitem"><a href="#" tabindex="-1">Sair</a></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
           <div class="player">
           <div class="player-top">
             <div class="song-info">
-              <img src="" alt="song-img"/>
+              <img src="" alt="song-img" id="player-cover"/>
               <div class="song-details">
                 <h4 id="player-song-title">Song Title</h4>
                 <p id="player-song-artist">Artist Name</p>
               </div>
             </div>
+          </div>
+          <!-- progress bar -->
+          <div class="player-progress">
+            <div class="progress-bar"><div class="progress"></div></div>
+            <div class="progress-times">
+              <span id="current-time">0:00</span>
+              <span id="duration-time">0:00</span>
+            </div>
+          </div>
+          <div class="player-footer">
             <div class="player-controls">
               <i class="bx bx-volume" id="volume-btn"></i>
               <i class="bx bx-skip-previous" id="prev-btn"></i>
@@ -195,5 +213,7 @@
     <script src="Scripts/dataService.js"></script>
     <script src="Scripts/musicPlayer.js"></script>
     <script src="Scripts/Script.js"></script>
+    <!-- Onboarding modal (injected, shown once) -->
+    <div id="onboard-root" aria-hidden="true"></div>
   </body>
 </html>

@@ -16,11 +16,11 @@
     audio.id = 'audio-element';
     audio.preload = 'metadata';
     audio.style.display = 'none';
-  // start volume at 100% as requested
+
   audio.volume = 1;
     container.appendChild(audio);
 
-    // create or locate a volume slider inside player-controls
+ 
     const controlsEl = container.querySelector('.player-controls');
     let volumeSlider = controlsEl ? controlsEl.querySelector('#volume-slider') : null;
     if (!volumeSlider && controlsEl) {
@@ -52,7 +52,9 @@
       progressBar.appendChild(progress);
       container.appendChild(progressBar);
     }
-    const progressEl = progressBar.querySelector('.progress');
+  const progressEl = progressBar.querySelector('.progress');
+  const currentTimeEl = container.querySelector('#current-time');
+  const durationTimeEl = container.querySelector('#duration-time');
 
     const state = { list: [], currentIndex: -1 };
 
@@ -91,7 +93,7 @@
   if (prevBtn) prevBtn.addEventListener('click', function () { if (state.currentIndex > 0) { loadByIndex(state.currentIndex - 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
   if (nextBtn) nextBtn.addEventListener('click', function () { if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); setPlayIcon(false); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} } });
 
-  // loop toggle: enable/disable HTMLAudioElement.loop
+
   if (loopBtn) {
     loopBtn.addEventListener('click', function () {
       audio.loop = !audio.loop;
@@ -100,13 +102,12 @@
     });
   }
 
-  // volume handling: slider + mute/unmute toggle with icon update
+
     if (volumeBtn) {
-      // remember previous non-zero volume to restore if needed
+     
       let prevVolume = audio.volume || 1;
       function updateVolumeIcon() {
         if (!volumeBtn) return;
-        // remove potential classes
         volumeBtn.classList.remove('bx-volume-mute','bx-volume-low','bx-volume','bx-volume-full');
         const vol = Number(audio.volume || 0);
         if (vol === 0) {
@@ -120,19 +121,18 @@
         }
       }
 
-      // clicking volume button toggles visibility of the slider only
       volumeBtn.addEventListener('click', function (e) {
         if (!volumeSlider) return;
         const isHidden = volumeSlider.style.display === 'none' || volumeSlider.style.display === '';
         volumeSlider.style.display = isHidden ? 'inline-block' : 'none';
         if (isHidden) {
-          // ensure slider reflects current volume
+    
           volumeSlider.value = audio.volume;
           volumeSlider.focus();
         }
       });
 
-      // slider changes volume
+
       if (volumeSlider) {
         volumeSlider.addEventListener('input', function () {
           const v = Number(volumeSlider.value);
@@ -143,15 +143,48 @@
         });
       }
 
-      // set initial icon state
+  
       updateVolumeIcon();
     }
+
+    function formatTime(s) {
+      if (!s || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' + sec : sec);
+    }
+
+    audio.addEventListener('loadedmetadata', function () {
+      if (durationTimeEl) durationTimeEl.textContent = formatTime(audio.duration);
+    });
 
     audio.addEventListener('timeupdate', function () {
       if (!audio.duration) return;
       const pct = (audio.currentTime / audio.duration) * 100;
       if (progressEl) progressEl.style.width = pct + '%';
+      if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
     });
+
+    // Make progress clickable / draggable
+    (function makeSeekable() {
+      if (!progressBar) return;
+      let isDown = false;
+      function seekToEvent(e) {
+        const rect = progressBar.getBoundingClientRect();
+        const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        const pct = Math.min(Math.max(0, clientX - rect.left), rect.width) / rect.width;
+        if (!audio.duration) return;
+        audio.currentTime = pct * audio.duration;
+      }
+      progressBar.addEventListener('mousedown', function (e) { isDown = true; seekToEvent(e); });
+      document.addEventListener('mousemove', function (e) { if (isDown) seekToEvent(e); });
+      document.addEventListener('mouseup', function () { isDown = false; });
+
+      // touch support
+      progressBar.addEventListener('touchstart', function (e) { isDown = true; seekToEvent(e); e.preventDefault(); });
+      progressBar.addEventListener('touchmove', function (e) { if (isDown) seekToEvent(e); });
+      progressBar.addEventListener('touchend', function () { isDown = false; });
+    })();
 
     audio.addEventListener('ended', function () {
       if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} }
