@@ -219,12 +219,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyLayout() {
       const isMobile = window.innerWidth <= breakpoint;
-      // menus: hide all .menu except the one that contains the create-playlist link
+      // menus: hide Library and Playlist menus on mobile, show only main Menu
       if (sidebar) {
         const menus = Array.from(sidebar.querySelectorAll('.menu'));
         menus.forEach(m => {
-          const hasPlaylist = !!m.querySelector('a[data-section="create-playlist"]');
-          m.style.display = isMobile ? (hasPlaylist ? 'block' : 'none') : '';
+          const h5 = m.querySelector('h5');
+          const isMainMenu = h5 && h5.textContent === 'Menu';
+          m.style.display = isMobile ? (isMainMenu ? 'block' : 'none') : '';
         });
       }
 
@@ -572,3 +573,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   })();
 });
+
+document.getElementById('current-year').textContent = new Date().getFullYear();
+

@@ -517,6 +517,93 @@ html {
   border-color: var(--main-color);
 }
 
+/* --- Footer Styling --- */
+
+.site-footer {
+    color: var(--text-color); /* White text */
+    padding: 30px 20px;
+    border-top: 1px solid var(--second-color); /* Subtle top border */
+    margin-top: 40px; /* Space above the footer */
+    font-size: 0.9em;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between; /* Distribute sections */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    max-width: 1200px; /* Limit footer width */
+    margin: 0 auto 20px auto;
+}
+
+.footer-section {
+    padding: 10px;
+    margin-bottom: 20px;
+    min-width: 200px;
+    flex: 1; /* Make sections take equal space */
+}
+
+.footer-section h3 {
+    color: var(--main-color); /* Main color for headings */
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+/* About Section */
+.footer-section.about p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.socials a {
+    color: var(--text-color);
+    font-size: 1.5em;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+.socials a:hover {
+    color: var(--main-color); /* Hover effect using main color */
+}
+
+/* Links Section */
+.footer-section.links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section.links a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+.footer-section.links a:hover {
+    color: var(--main-color);
+    text-decoration: underline;
+}
+
+/* Contact Section */
+.footer-section.contact p {
+    margin-bottom: 10px;
+}
+
+.footer-section.contact i {
+    color: var(--main-color);
+    margin-right: 10px;
+}
+
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px dashed var(--second-color);
+    color: var(--second-color);
+}
+
+
+
 /* Right side content */
 
 
@@ -834,3 +921,118 @@ html {
 .btn-primary { background:var(--main-color); color:var(--background-color); }
 .btn-secondary { background:transparent; color:var(--text-color); border:1px solid rgba(255,255,255,0.04); }
 
+
+
+/* Minigame* */
+
+.snake-game-container {
+  margin-top: 30px;
+  padding: 15px;
+  
+  border-radius: 15px;
+  text-align: center;
+  border: 1px solid var(--second-color);
+}
+
+.snake-game-container h4 {
+    color: var(--main-color);
+    margin-bottom: 10px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+/* Tabuleiro do jogo */
+.game-board {
+    display: grid;
+    width: 200px; 
+    height: 200px; 
+    margin: 0 auto 10px auto;
+    border: 3px solid var(--main-color);
+    background-color: #2a2a33; 
+}
+
+
+.snake {
+    background-color: var(--main-color);
+    border-radius: 2px;
+}
+
+.food {
+    background-color: #ff5733; 
+    border-radius: 50%;
+}
+
+
+#start-button {
+    padding: 8px 20px;
+    background-color: var(--main-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#start-button:hover {
+    background-color: #eedde6; 
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal-overlay[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--background-color);
+    color: var(--text-color);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 300px;
+    border: 2px solid var(--main-color);
+}
+
+.modal-content h3 {
+    color: var(--main-color);
+    margin-bottom: 15px;
+}
+
+.modal-content .small-text {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: var(--second-color);
+}
+
+#close-modal-btn {
+    margin-top: 20px;
+    padding: 8px 15px;
+    background-color: var(--main-color);
+    color: var(--background-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

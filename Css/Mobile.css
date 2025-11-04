@@ -67,6 +67,15 @@
   .menu-btn {
     display: flex;
   }
+
+  /* Hide the snake mini game on mobile */
+  .snake-game-container {
+    display: none;
+  }
+
+  #congrats-modal {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -299,4 +308,30 @@
   .player {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-section {
+        min-width: 100%; /* Full width on mobile */
+    }
+
+    .socials {
+        text-align: center;
+    }
+    
+    .footer-section.links ul {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .footer-section.links li {
+        margin-bottom: 0;
+    }
 }
