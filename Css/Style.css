@@ -519,10 +519,7 @@ html {
 
 /* Right side content */
 
-/* Right side content - desktop player styles
-   These styles are intended for larger screens. Mobile-specific rules
-   were moved to `Mobile.css` so the mobile stylesheet controls the
-   small-screen appearance. */
+
 
 .container .right-section {
   padding: 20px 36px 20px 0;
@@ -531,15 +528,14 @@ html {
   align-items: stretch;
 }
 
-/* container player wrapper fills the right column and provides a
-   distinct surface for the player UI */
+
 .container .right-section .player {
-  flex: 1 1 auto; /* allow player to fill remaining height without pushing profile */
-  min-height: 0; /* enable internal scrolling when needed */
+  flex: 1 1 auto; 
+  min-height: 0; 
   background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.04));
   border: 1px solid rgba(255,255,255,0.03);
   border-radius: 12px;
-  padding: 8px; /* reduced to free vertical space so main list can expand */
+  padding: 8px; 
   display: flex;
   flex-direction: column;
   gap: 12px;
