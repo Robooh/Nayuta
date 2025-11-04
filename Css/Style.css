@@ -599,7 +599,7 @@ html {
 .icon-btn i { font-size: 18px; }
 .icon-btn:hover { background: rgba(255,255,255,0.02); }
 
-/* Menu arrow buttons (mobile) */
+
 .menu-btn {
   /* hide by default on larger screens; mobile stylesheet will override to show */
   display: none;
@@ -613,7 +613,7 @@ html {
 }
 .menu-btn:hover { background: rgba(255,255,255,0.02); }
 
-/* settings dropdown */
+
 .settings-wrap { position: relative; }
 .settings-dropdown {
   position: absolute;
@@ -669,7 +669,7 @@ html {
   border-radius: 8px;
 }
 
-/* ensure Top 5 images never overflow horizontally */
+
 .top-item-left img,
 .music-card-img,
 .search-thumb,
@@ -678,7 +678,7 @@ html {
   height: auto;
 }
 
-/* profile name color to improve contrast on dark background */
+
 #profile-name {
   color: var(--text-color);
 }

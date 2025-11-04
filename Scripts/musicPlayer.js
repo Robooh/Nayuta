@@ -31,13 +31,13 @@
       volumeSlider.max = 1;
       volumeSlider.step = 0.01;
       volumeSlider.value = (typeof audio.volume === 'number') ? audio.volume : 1;
-      // hidden by default; will be toggled when user clicks the volume button
+     
       volumeSlider.style.display = 'none';
       volumeSlider.setAttribute('title', 'Volume');
-      // small inline style; can be overridden by CSS
+    
       volumeSlider.style.width = '96px';
       volumeSlider.style.marginLeft = '8px';
-      // insert the slider after the volume button if possible
+   
       if (volumeBtn && volumeBtn.parentNode) volumeBtn.parentNode.insertBefore(volumeSlider, volumeBtn.nextSibling);
       else if (controlsEl) controlsEl.appendChild(volumeSlider);
     }
@@ -135,7 +135,7 @@
 
       if (volumeSlider) {
         volumeSlider.addEventListener('input', function () {
-          const v = Number(volumeSlider.value);
+          const v = Math.min(1, Math.max(0, Number(volumeSlider.value)));
           audio.volume = v;
           if (v > 0) prevVolume = v;
           updateVolumeIcon();
@@ -160,7 +160,7 @@
 
     audio.addEventListener('timeupdate', function () {
       if (!audio.duration) return;
-      const pct = (audio.currentTime / audio.duration) * 100;
+      const pct = Math.min(100, (audio.currentTime / audio.duration) * 100);
       if (progressEl) progressEl.style.width = pct + '%';
       if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
     });
@@ -187,6 +187,7 @@
     })();
 
     audio.addEventListener('ended', function () {
+      if (progressEl) progressEl.style.width = '100%';
       if (state.currentIndex < state.list.length - 1) { loadByIndex(state.currentIndex + 1); audio.play(); try { container.dispatchEvent(new CustomEvent('player:play', { detail: { index: state.currentIndex } })); } catch (e) {} }
       else { setPlayIcon(true); try { container.dispatchEvent(new CustomEvent('player:pause', { detail: { index: state.currentIndex } })); } catch (e) {} }
     });

@@ -16,7 +16,7 @@
     { id: 9, title: 'UNDEAD', artist: 'YOASOBI', audio: 'Src/Music/UNDEAD - YOASOBI.mp3', cover: 'Src/Card-img/Undead.jpg', genre: 'Pop', timesPlayed: 2984 },
     { id: 10, title: 'ラビットホール', artist: 'DECO*27', audio: 'Src/Music/RabitHole.mp3', cover: 'Src/Card-img/Rh.jpg', genre: 'Pop', timesPlayed: 3100 },
     { id: 11, title: 'Travelers', artist: 'Andrew Prahlow', audio: 'Src/Music/Travelers.mp3', cover: 'Src/Card-img/Ow.jpg', genre: 'Pop', timesPlayed: 5000},
-    { id: 12, title: 'Assault TAXI ', artist: '∀Ｓ∀', audio: 'Src/Music/Taxi.mp3', cover: 'Src/Card-img/Taxi.jpg', genre: 'Eletronic', timesPlayed: 190 }
+    { id: 12, title: 'Assault TAXI ', artist: '∀Ｓ∀', audio: 'Src/Music/Taxi.mp3', cover: 'Src/Card-img/Taxi.jpg', genre: 'Electronic', timesPlayed: 190 }
    
   ];
 

@@ -1,0 +1,4 @@
+- [ ] Fix progress bar to reach 100% on song end in musicPlayer.js
+- [ ] Verify seek clamping in musicPlayer.js
+- [ ] Check volume slider for similar issues
+- [ ] Test the fixes
