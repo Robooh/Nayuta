@@ -319,12 +319,11 @@ html {
   border: 1px solid rgba(255, 255, 255, 0.04);
   padding: 12px;
   border-radius: 12px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.3s ease-in-out, box-shadow 0.18s ease;
   cursor: pointer;
 }
 
 .music-card:hover {
-  transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
   border-color: var(--main-color);
 }
@@ -778,7 +777,7 @@ html {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--second-color);
+  background: var(--main-color);
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   cursor: pointer;
 }
@@ -786,7 +785,7 @@ html {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--second-color);
+  background: var(--main-color);
   border: none;
   cursor: pointer;
 }
@@ -805,8 +804,8 @@ html {
 .player-progress .progress {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--main-color) 0%, var(--main-color) 60%, #3a3a3a 60%);
-  transition: width 200ms linear;
+ background-color: var(--main-color);
+  transition: width 0.1s linear;
 }
 
 /* Onboarding modal (one-time user setup) */
