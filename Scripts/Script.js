@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     info.appendChild(title); info.appendChild(artist); info.appendChild(genre);
     card.appendChild(info);
 
-    // hidden button that will load the song into player
+
     const btn = document.createElement('button');
     btn.className = 'load-btn';
     btn.style.display = 'none';
@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     card.appendChild(btn);
     
-  // (star removed)
+ 
 
-    // clicking the card will reveal the hidden button and load the song
+
     card.addEventListener('click', function () {
       if (!player) return;
   console.log('[card] clicked index=', index);
@@ -305,19 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initial) applySection(initial, false);
   })();
 
-  // Mobile menu open/close handlers
-  (function initMobileMenu() {
-    const menuOpen = document.getElementById('menu-open');
-    const menuClose = document.getElementById('menu-close');
-    const cont = document.querySelector('.container');
-    if (!cont) return;
-    function open() { cont.classList.add('sidebar-open'); }
-    function close() { cont.classList.remove('sidebar-open'); }
-    if (menuOpen) menuOpen.addEventListener('click', function (e) { e.stopPropagation(); open(); });
-    if (menuClose) menuClose.addEventListener('click', function (e) { e.stopPropagation(); close(); });
-    // also close on outside click for mobile
-    document.addEventListener('click', function (e) { if (!cont.querySelector('.sidebar').contains(e.target)) close(); });
-  })();
+
 
   // Onboarding modal: prompt for username and avatar on first visit
   (function initOnboarding() {
@@ -468,8 +456,71 @@ document.addEventListener('DOMContentLoaded', function() {
   // wire filter events
   if (genreSelect) genreSelect.addEventListener('change', function () { renderMainList(); });
 
-  // poll for data changes every 2s (since DataService is in-memory mock)
+  
   setInterval(function () { populateGenreSelect(); renderMainList(); }, 2000);
+
+  // Update sidebar menu messages for playlists and artists (permanent buttons, updated when content added)
+  function updateSidebarMessages() {
+    const playlistMenu = document.getElementById('playlist-menu');
+    const artistMenu = document.getElementById('artist-menu');
+
+    // Playlists
+    if (playlistMenu) {
+      let li = playlistMenu.querySelector('.empty-message');
+      if (!li) {
+        li = document.createElement('li');
+        li.className = 'empty-message';
+        const btn = document.createElement('button');
+        btn.className = 'menu-empty-btn';
+        li.appendChild(btn);
+        playlistMenu.appendChild(li);
+      }
+      const btn = li.querySelector('.menu-empty-btn');
+      const hasContent = playlistMenu.children.length > 1; // more than the message li
+      if (hasContent) {
+        btn.textContent = 'View Playlists';
+        btn.onclick = function () {
+          alert('Feature coming soon: View your playlists!');
+        };
+      } else {
+        btn.textContent = 'Create Playlist';
+        btn.onclick = function () {
+          alert('Feature coming soon: Create a new playlist!');
+        };
+      }
+    }
+
+    // Artists
+    if (artistMenu) {
+      let li = artistMenu.querySelector('.empty-message');
+      if (!li) {
+        li = document.createElement('li');
+        li.className = 'empty-message';
+        const btn = document.createElement('button');
+        btn.className = 'menu-empty-btn';
+        li.appendChild(btn);
+        artistMenu.appendChild(li);
+      }
+      const btn = li.querySelector('.menu-empty-btn');
+      const hasContent = artistMenu.children.length > 1; // more than the message li
+      if (hasContent) {
+        btn.textContent = 'View Artists';
+        btn.onclick = function () {
+          alert('Feature coming soon: View followed artists!');
+        };
+      } else {
+        btn.textContent = 'Discover Artists';
+        btn.onclick = function () {
+          alert('Feature coming soon: Discover new artists!');
+        };
+      }
+    }
+  }
+
+  // Initial update
+  updateSidebarMessages();
+  // Update periodically in case lists change
+  setInterval(updateSidebarMessages, 2000);
   
   // Profile actions: settings dropdown and notifications placeholder
   (function initProfileActions() {

@@ -20,11 +20,11 @@
     <div class="container">
       <aside class="sidebar">
         <div class="logo">
-          <button class="menu-btn" id="menu-close" title="Fechar menu">
-            &lt;
-          </button>
           <i class="bx bx-game"></i>
           <a href="#">Nayuta</a>
+          <button class="menu-btn" id="sidebar-toggle" title="Toggle sidebar">
+            >
+          </button>
         </div>
         <div class="menu">
           <h5>Menu</h5>
@@ -39,19 +39,24 @@
               <a href="#" data-section="albums">Albums</a>
             </li>
 
-            <li>
-              <i class="bx bx-male-female"></i>
-              <a href="#" data-section="artists">Artists</a>
-            </li>
               <li><i class="bx bx-undo"></i>
               <a href="#" data-section="recent">Recent</a>
             </li>
-              <li></li>
-              <li></li>
           </ul>
         </div>
 
-       
+        <div class="menu">
+            <h5>Playlists</h5>
+            <ul id="playlist-menu" class="playlist-menu">
+              <!-- Playlists will be dynamically added here -->
+            </ul>
+          </div>
+          <div class="menu">
+            <h5>Artists</h5>
+            <ul id="artist-menu" class="artist-menu">
+              <!-- Artists will be dynamically added here -->
+            </ul>
+          </div>
 
       </aside>
 
