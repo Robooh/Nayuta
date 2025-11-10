@@ -208,48 +208,14 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(tick, 6000);
   })();
 
-  // Mobile layout adjustments: show only Playlist menu, move profile into sidebar and move player out
+  // Mobile layout adjustments: move player out for mobile
   (function initMobileLayout() {
     const breakpoint = 992;
-    const sidebar = document.querySelector('.container .sidebar');
-    const rightSection = document.querySelector('.container .right-section');
     const playerEl = document.querySelector('.container .right-section .player');
-    const rightProfile = rightSection ? rightSection.querySelector('.profile') : null;
     let playerOriginalParent = playerEl ? playerEl.parentNode : null;
 
     function applyLayout() {
       const isMobile = window.innerWidth <= breakpoint;
-      // menus: hide Library and Playlist menus on mobile, show only main Menu
-      if (sidebar) {
-        const menus = Array.from(sidebar.querySelectorAll('.menu'));
-        menus.forEach(m => {
-          const h5 = m.querySelector('h5');
-          const isMainMenu = h5 && h5.textContent === 'Menu';
-          m.style.display = isMobile ? (isMainMenu ? 'block' : 'none') : '';
-        });
-      }
-
-      // profile: clone into sidebar on mobile, restore on desktop
-      if (rightProfile && sidebar) {
-        const existingClone = sidebar.querySelector('.profile-mobile-clone');
-        if (isMobile) {
-          if (!existingClone) {
-            const clone = rightProfile.cloneNode(true);
-            clone.classList.add('profile-mobile-clone');
-            // insert clone after logo
-            const logo = sidebar.querySelector('.logo');
-            if (logo && logo.parentNode) logo.parentNode.insertBefore(clone, logo.nextSibling);
-            else sidebar.insertBefore(clone, sidebar.firstChild);
-            // hide original to avoid duplicate
-            rightProfile.style.display = 'none';
-          }
-        } else {
-          if (existingClone) {
-            existingClone.remove();
-            rightProfile.style.display = '';
-          }
-        }
-      }
 
       // player: move out of right-section into body for mobile so fixed positioning works
       if (playerEl) {

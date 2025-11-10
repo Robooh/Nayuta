@@ -19,7 +19,7 @@
     audio.preload = "metadata";
     audio.style.display = "none";
 
-    audio.volume = 1;
+    audio.volume = 0.7;
     container.appendChild(audio);
 
     const controlsEl = container.querySelector(".player-controls");

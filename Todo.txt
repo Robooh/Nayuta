@@ -10,3 +10,6 @@
 {}We will make the top 5 to be removed when the user clicks on one of the button on the sidebar and load new content on the place of the top 5,for example.
 
 {}if the user clicks on the recent we will change the top 5 to a new list that would show the 5 more recent songs played or we can add the list below the top 5 we can test later.a
+
+
+Can you take a look at the project files. after this we will workin on our sidebar, what we want to do is a rework on her. Our ideia is to set user interraction with a button to open close the sidebar on both version the mobile and pc version. we want to change the content of the sidebar on the both version as well right now we got a list on the pc version with a lof of itens that dont do nothing, we want to on the pc version to change then to a version where when sidebar is open we will show the full content of the itens and what they are like 'playlist'' with the icon for this and when the sidebar is closed we will only show the itens. and on mobile we want to creat the profile setting of the user on the sidebar insted of showing the icons by default. 
