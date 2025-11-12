@@ -1,15 +1,15 @@
-{NEED TO BE CREATED!!!}Add new Player.html page so the user can change to a Music player page focused where it would load all the content of his playlist  on the right section and the music player would go to the main page space so it would be Sidebar(left) Music player,(Song list of his playlist on the right.) with a lot more of options add into this new page.
+💾 Recap: How to Use Local Storage (The Modular Way)In the code separation we just performed, we've isolated the Local Storage access into localStorageService.js. This is the best practice!Reading: To get data, you call the appropriate function from your service file (e.g., getPlaylists() or getUserPlayCounts()). Inside that function, it uses localStorage.getItem('KEY') and then converts the resulting JSON string back into a JavaScript object/array using JSON.parse().Writing: To save data, you call a saving function (e.g., savePlaylists()). Inside that function, you first convert your JavaScript object/array into a string using JSON.stringify(), and then save it using localStorage.setItem('KEY', stringData).ActionJavaScript MethodPurposeStore DatalocalStorage.setItem(key, value)Stores a string value under a string key.Retrieve DatalocalStorage.getItem(key)Returns the string value for the key.Use Complex DataJSON.parse() / JSON.stringify()Used to convert objects/arrays to strings and back for storage.By using the functions in localStorageService.js, the rest of your main.js script only has to worry about what data it needs, not how it's stored.
 
 
-{}add playlist function so the user can create then.
+Need to change how the music player plays to handle the new playlist system.
 
-{}add a + Button on each card on the song list that would pop a card to add to a new playlist or creating one new.
+need to fix the style for the add  to playlist and change the function so they are implemented correct and not by input like what is now.
 
-{}when the user clicks on one of his playlist we will, load then on the right side of the player.html file and load all the content need to run the playlist. 
+need to add the button to create more playlist even if the user aredy have one.
 
-{}We will make the top 5 to be removed when the user clicks on one of the button on the sidebar and load new content on the place of the top 5,for example.
+maybe add a add artist button just to show a example on how would look like.
 
-{}if the user clicks on the recent we will change the top 5 to a new list that would show the 5 more recent songs played or we can add the list below the top 5 we can test later.a
+Change the styles of the slidershow to a more modern.
 
+change music player to load the songs from the playlist and loop then when it gets to the final song of the playlist made by the user.
 
-Can you take a look at the project files. after this we will workin on our sidebar, what we want to do is a rework on her. Our ideia is to set user interraction with a button to open close the sidebar on both version the mobile and pc version. we want to change the content of the sidebar on the both version as well right now we got a list on the pc version with a lof of itens that dont do nothing, we want to on the pc version to change then to a version where when sidebar is open we will show the full content of the itens and what they are like 'playlist'' with the icon for this and when the sidebar is closed we will only show the itens. and on mobile we want to creat the profile setting of the user on the sidebar insted of showing the icons by default. 

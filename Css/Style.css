@@ -143,8 +143,8 @@ html {
   align-items: center;
   gap: 20px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease-in-out;
 }
 
 .container .sidebar .menu ul li i {
@@ -153,7 +153,7 @@ html {
 
 .container .sidebar .menu ul li:hover {
   background-color: rgba(255, 255, 255, 0.05);
-  border-bottom-color: var(--main-color);
+  border-color: var(--main-color);
 }
 
 .container .sidebar .menu ul li a {
@@ -178,13 +178,13 @@ html {
   align-items: center;
   gap: 20px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .container .sidebar .menu ul li.empty-message:hover {
   background-color: rgba(255, 255, 255, 0.05);
-  border-bottom-color: var(--main-color);
+  border-color: var(--main-color);
 }
 
 .container .sidebar .menu ul li .menu-empty-btn {
@@ -200,6 +200,57 @@ html {
 
 .container .sidebar .menu ul li .menu-empty-btn:hover {
   color: var(--main-color);
+}
+
+/* Playlist item styles */
+.playlist-item {
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.playlist-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--main-color);
+}
+
+.playlist-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.playlist-name:hover {
+  color: var(--main-color);
+}
+
+.playlist-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.delete-btn {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  float: right;
+}
+
+.delete-btn:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
 }
 
 
