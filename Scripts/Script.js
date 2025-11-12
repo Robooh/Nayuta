@@ -349,37 +349,70 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
 
   // --- Onboarding modal Logic ---
-  (function initOnboarding() {
+(function initOnboarding() {
     const onboardRoot = document.getElementById("onboard-root");
     const profileNameEl = document.getElementById("profile-name");
     const profileAvatarEls = document.querySelectorAll(
-      ".profile-avatar, .profile .user .left img"
+        ".profile-avatar, .profile .user .left img"
     );
     const playingTopImg = document.querySelector(
-      ".container .sidebar .playing .top img"
+        ".container .sidebar .playing .top img"
     );
 
+    // Default avatar path (assuming it exists)
+    const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png";
+
     function populateProfile(data) {
-      if (!data) return;
-      if (profileNameEl && data.name) profileNameEl.textContent = data.name;
-      if (data.avatar) {
-        profileAvatarEls.forEach((img) => {
-          img.src = data.avatar;
-        });
-        if (playingTopImg) playingTopImg.src = data.avatar;
-      }
+        if (!data) return;
+        if (profileNameEl && data.name) profileNameEl.textContent = data.name;
+        if (data.avatar) {
+            profileAvatarEls.forEach((img) => {
+                img.src = data.avatar;
+            });
+            if (playingTopImg) playingTopImg.src = data.avatar;
+        }
     }
 
-    // 🛑 Replaced direct localStorage access with function call
     const existing = getStoredUserProfile();
 
     if (existing) {
-      populateProfile(existing);
-      return; // already set
+        populateProfile(existing);
+        return; // Profile already set, exit function
     }
-
-    // ... (Modal structure building remains the same)
-
+    
+    // =======================================================
+    // FIX: Modal Creation and Insertion (Missing Step)
+    // This runs ONLY if the profile does not exist.
+    // =======================================================
+    if (onboardRoot) {
+        onboardRoot.setAttribute('aria-hidden', 'false');
+        onboardRoot.innerHTML = `
+            <div id="onboard-overlay" class="onboard-overlay">
+                <div class="onboard-modal">
+                    <h2>Welcome to Nayuta!</h2>
+                    <p>Let's set up your profile.</p>
+                    <div class="onboard-avatar-section">
+                        <img id="onboard-preview" src="${DEFAULT_AVATAR}" alt="Profile Preview" class="onboard-preview-img"/>
+                        <label for="onboard-file" class="upload-label">
+                            Upload Avatar
+                            <input type="file" id="onboard-file" accept="image/*" style="display:none;"/>
+                        </label>
+                    </div>
+                    <div class="onboard-input-section">
+                        <label for="onboard-name">Your Name:</label>
+                        <input type="text" id="onboard-name" placeholder="Enter name (e.g., Guest User)"/>
+                    </div>
+                    <div class="onboard-actions">
+                        <button id="onboard-skip" class="btn-secondary">Skip</button>
+                        <button id="onboard-save" class="btn-primary">Save Profile</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    // =======================================================
+    
+    // Now that the elements are in the DOM, we can select them
     const overlay = document.getElementById("onboard-overlay");
     const preview = document.getElementById("onboard-preview");
     const inputName = document.getElementById("onboard-name");
@@ -387,35 +420,66 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnSave = document.getElementById("onboard-save");
     const btnSkip = document.getElementById("onboard-skip");
 
-    let avatarData = preview.src;
+    // Check if critical elements were actually created before proceeding
+    if (!preview || !inputFile || !btnSave || !btnSkip) {
+        console.error("Onboarding modal elements failed to load.");
+        return; 
+    }
+    
+    let avatarData = preview.src; // This line now works!
 
     inputFile.addEventListener("change", function (e) {
-      // ... (File reader logic remains the same)
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+                avatarData = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
     function closeOnboard() {
-      // ... (close logic remains the same)
+        if (onboardRoot) {
+             onboardRoot.setAttribute('aria-hidden', 'true');
+             onboardRoot.innerHTML = ''; // Clean up modal content
+        }
     }
 
     btnSave.addEventListener("click", function () {
-      const name = (inputName.value || "").trim() || "User";
-      const data = { name: name, avatar: avatarData };
-      // 🛑 Replaced direct localStorage access with function call
-      saveUserProfile(data);
-      populateProfile(data);
-      closeOnboard();
+        const name = (inputName.value || "").trim() || "User";
+        const data = { name: name, avatar: avatarData };
+        saveUserProfile(data);
+        populateProfile(data);
+        closeOnboard();
     });
 
     btnSkip.addEventListener("click", function () {
-      const data = { name: "User", avatar: preview.src };
-      // 🛑 Replaced direct localStorage access with function call
-      saveUserProfile(data);
-      populateProfile(data);
-      closeOnboard();
+        // Use the default avatar path if the user skips
+        const data = { name: "User", avatar: DEFAULT_AVATAR };
+        saveUserProfile(data);
+        populateProfile(data);
+        closeOnboard();
     });
 
-    // ... (Escape/outside click logic remains the same)
-  })();
+    // Handle escape key and outside click to close/skip
+    if (overlay) {
+        overlay.addEventListener("click", function(e) {
+            if (e.target === overlay) {
+                btnSkip.click(); // Treat outside click as skip
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && onboardRoot.getAttribute('aria-hidden') === 'false') {
+            btnSkip.click();
+        }
+    });
+
+})(); // End of initOnboarding
+
 
   // initial render
   populateGenreSelect();

@@ -13,3 +13,4 @@ Change the styles of the slidershow to a more modern.
 
 change music player to load the songs from the playlist and loop then when it gets to the final song of the playlist made by the user.
 
+need to fix the menu dropdown on the user profile.
