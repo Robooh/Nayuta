@@ -1,9 +1,15 @@
-# TODO: Implement Playlist Display and Actions
+# TODO: Implement Search Autocomplete Functionality
 
-- [x] Add `deletePlaylist` function to `Scripts/localStorageService.js`
-- [x] Update `updateSidebarMessages` in `Scripts/Script.js` to render playlists with View and Delete buttons
-- [x] Add event handlers in `Scripts/Script.js` for viewing (load playlist songs) and deleting playlists
-- [x] Modify `handleCreatePlaylist` in `Scripts/Script.js` to refresh sidebar after creation
-- [x] Add CSS styles for playlist items in `Css/Style.css`
-- [x] Change playlist display to simple inline items with name and delete button, add delete modal
-- [x] Test updated playlist display and delete modal
+## Overview
+Implement autocomplete search in Script.js for the #search-input. On typing, show a dropdown list of closest matching songs (by title/artist) in #search-results. Clicking a result plays the song using the player.
+
+## Steps to Complete
+- [ ] Read current Script.js to locate the initSearch() placeholder.
+- [ ] Implement initSearch() function:
+  - Add event listener to #search-input for 'input' event.
+  - On input: get query, call DataService.search(query), populate #search-results with results.
+  - Each result: <div> with title and artist, click handler to play song (find index in full list, load and play).
+  - Hide results on blur or empty query.
+- [ ] Check Css/Style.css for .search-results styling; add if missing (position absolute, etc.).
+- [ ] Test: Type in search, see dropdown, click to play song.
+- [ ] Update this TODO.md as steps are completed.

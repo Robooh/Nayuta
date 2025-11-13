@@ -487,7 +487,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- Search Autocomplete Logic ---
   (function initSearch() {
-    // ... (Search logic remains the same)
+    const searchInput = document.getElementById("search-input");
+    const searchResults = document.getElementById("search-results");
+
+    if (!searchInput || !searchResults) return;
+
+    searchInput.addEventListener("input", function () {
+      const query = searchInput.value.trim();
+      if (!query) {
+        searchResults.style.display = "none";
+        return;
+      }
+
+      const results = DataService.search(query);
+      searchResults.innerHTML = "";
+
+      if (results.length === 0) {
+        searchResults.style.display = "none";
+        return;
+      }
+
+      results.forEach((song) => {
+        const row = document.createElement("div");
+        row.className = "search-row";
+
+        const img = document.createElement("img");
+        img.className = "search-thumb";
+        img.src = song.cover || "Src/Card-img/Undead.jpg";
+        img.alt = song.title;
+
+        const textDiv = document.createElement("div");
+        textDiv.className = "search-text";
+        textDiv.innerHTML = `<strong>${song.title}</strong><br><small>${song.artist}</small>`;
+
+        const playBtn = document.createElement("button");
+        playBtn.className = "search-play";
+        playBtn.textContent = "Play";
+        playBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          playSong(song);
+        });
+
+        row.appendChild(img);
+        row.appendChild(textDiv);
+        row.appendChild(playBtn);
+
+        row.addEventListener("click", function () {
+          playSong(song);
+        });
+
+        searchResults.appendChild(row);
+      });
+
+      searchResults.style.display = "block";
+    });
+
+    searchInput.addEventListener("blur", function () {
+      setTimeout(() => {
+        searchResults.style.display = "none";
+      }, 150); // Delay to allow click on results
+    });
+
+    function playSong(song) {
+      if (!player) return;
+      const allSongs = DataService.getAll();
+      const index = allSongs.findIndex((s) => s.id === song.id);
+      if (index !== -1) {
+        player.loadList(allSongs);
+        player.playIndex(index);
+      }
+      searchResults.style.display = "none";
+      searchInput.value = "";
+    }
   })();
 
   // wire filter events
