@@ -1,6 +1,3 @@
-// main.js
-
-// Import all necessary Local Storage functions
 import {
   getStoredUserProfile,
   saveUserProfile,
@@ -15,15 +12,18 @@ import {
 } from "./localStorageService.js";
 
 document.addEventListener("DOMContentLoaded", function () {
+  // NOTE: DataService and Player are assumed to be loaded/available globally
+  // Or, if using modules, DataService needs to be imported here and
+  // Player needs to be imported/exported from its own file.
+
   const playerContainer = document.querySelector(".player");
   const mainListEl = document.querySelector(".main-list");
   const genreSelect = document.getElementById("genre-select");
   let player = null;
   let currentDataHash = "";
+  const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png"; // --- Utility Functions (createCard, getFilteredList, etc.) ---
 
-  // --- Utility Functions (createCard, getFilteredList, etc.) ---
-
-  function createCard(item, index) {
+  function createCard(item, index, listType = "main") {
     const card = document.createElement("div");
     card.className = "music-card";
     card.dataset.id = item.id;
@@ -41,39 +41,47 @@ document.addEventListener("DOMContentLoaded", function () {
     const artist = document.createElement("p");
     artist.textContent = item.artist || "-";
     const genre = document.createElement("small");
-    genre.textContent = item.genre || "";
+    genre.textContent =
+      listType === "personalized"
+        ? `Plays: ${item._score || 0}`
+        : item.genre || "";
     info.appendChild(title);
     info.appendChild(artist);
     info.appendChild(genre);
-    card.appendChild(info);
+    card.appendChild(info); // Play/Load button for the card
 
-    const btn = document.createElement("button");
-    btn.className = "load-btn";
-    btn.style.display = "none";
-    btn.textContent = "Load";
-    btn.addEventListener("click", function (e) {
+    const playBtn = document.createElement("button");
+    playBtn.className = "load-btn";
+    playBtn.textContent = "Play";
+    playBtn.style.display = "none";
+    playBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       if (!player) return;
-      player.playIndex(index);
-    });
-    card.appendChild(btn);
+      const listToPlay =
+        listType === "personalized"
+          ? getCurrentSuggestedList()
+          : getFilteredList();
+      const songIndexInList = listToPlay.findIndex((s) => s.id === item.id);
 
+      if (songIndexInList !== -1) {
+        player.loadList(listToPlay);
+        player.playIndex(songIndexInList); // Manually trigger play count increment when playing from a list/grid
+        incrementUserPlayCount(item.id);
+        renderSuggested();
+      }
+    });
+    card.appendChild(playBtn);
     card.addEventListener("click", function () {
       if (!player) return;
-      btn.style.display = "inline-block";
-      setTimeout(() => {
-        btn.style.display = "none";
-      }, 2000);
-      player.playIndex(index);
+      playBtn.click();
     });
-
     const addBtn = document.createElement("button");
     addBtn.className = "add-playlist-btn";
-    addBtn.textContent = "+ playlist";
-    addBtn.dataset.songId = item.id; // Store the song's ID
+    addBtn.textContent = "+ Playlist";
+    addBtn.dataset.songId = item.id;
     addBtn.addEventListener("click", function (e) {
       e.stopPropagation();
-      handleAddToPlaylist(item.id); // Call the new handler function
+      showAddToPlaylistModal(item.id, item.title);
     });
     card.appendChild(addBtn);
 
@@ -120,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
       else genreSelect.value = "";
     }
   }
-
   function renderMainList() {
     if (!mainListEl) return;
     const list = getFilteredList();
@@ -139,31 +146,19 @@ document.addEventListener("DOMContentLoaded", function () {
     grid.className = "main-list-grid";
 
     list.forEach((item, i) => {
-      const card = createCard(item, i);
+      const card = createCard(item, i, "main"); // Use 'main' type
       grid.appendChild(card);
     });
 
     mainListEl.appendChild(grid);
+  } // --- Player Initialization ---
 
-    if (player) player.loadList(list);
-  }
-
-  // --- Player Initialization ---
-  if (playerContainer) {
+  if (playerContainer && typeof Player !== "undefined") {
     player = Player.init(playerContainer);
-    const musicList = DataService.getAll();
-    player.loadList(musicList);
-  }
+  } // --- Suggested List
 
-  // --- Suggested List / Recommendation Rendering ---
-  function renderSuggested() {
-    const container = document.getElementById("music-items");
-    if (!container) return;
-    container.innerHTML = "";
-
+  function getCurrentSuggestedList() {
     const all = (DataService.getAll() || []).map((x) => Object.assign({}, x));
-
-    // 🛑 Replaced direct localStorage access with function call
     let userPlays = getUserPlayCounts();
 
     all.forEach((t) => {
@@ -171,39 +166,45 @@ document.addEventListener("DOMContentLoaded", function () {
       t._score = Number(t.timesPlayed || 0) + extra;
     });
 
-    const suggested = all
+    return all
       .slice()
       .sort((a, b) => b._score - a._score)
       .slice(0, 5);
+  }
+  function renderSuggested() {
+    const container = document.getElementById("music-items"); // The container for suggested list
+    if (!container) return;
+    container.className = "personalized-songs-grid";
+    container.innerHTML = "";
+
+    const suggested = getCurrentSuggestedList();
     suggested.forEach((t, idx) => {
-      const item = document.createElement("div");
-      item.className = "top-item";
-      item.innerHTML = `<div class="top-item-left"><img src="${
-        t.cover || "Src/Card-img/Undead.jpg"
-      }" alt="${t.title}"/></div>
-                <div class="top-item-right">
-                    <div class="top-item-meta"><span class="rank">#${
-                      idx + 1
-                    }</span><span class="genre">${t.genre || ""}</span></div>
-                    <h5 class="top-title">${t.title}</h5>
-                    <p class="top-artist">${t.artist}</p>
-                    <small class="plays">Plays: ${t._score || 0}</small>
-                </div>`;
-      item.addEventListener("click", function () {
-        if (!player) return;
-        player.loadList(suggested);
-        player.playIndex(idx);
-        // 🛑 Replaced direct localStorage increment with function call
-        userPlays = incrementUserPlayCount(t.id);
-      });
-      container.appendChild(item);
-    });
+      // Note: We pass the entire list for the play logic to find the index later.
+      const card = createCard(t, idx, "personalized"); // Use 'personalized' type
+      container.appendChild(card);
+    }); // Check for the header and insert it if missing (assuming the header is outside the `music-items` div, // otherwise, add an H2 inside the container) // Since the current HTML seems to treat #music-items as the scroller for the top list, // we'll leave the title management outside this function for simplicity.
   }
 
   renderSuggested();
-  setInterval(renderSuggested, 5000);
+  setInterval(renderSuggested, 5000); // --- Profile Actions (To-Do #2) ---
 
-  // --- Slideshow (Trending) Logic ---
+  function handleLogout() {
+    if (
+      confirm(
+        "Are you sure you want to log out? Your profile data will be cleared."
+      )
+    ) {
+      localStorage.removeItem("nayuta_user"); // Clear user profile
+      location.reload(); // Reload to trigger onboarding/default state
+    }
+  }
+  (function initProfileActions() {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", handleLogout);
+    }
+  })(); // --- Slideshow (Trending) Logic ---
+
   (function initSlideshow() {
     const slideImg = document.getElementById("slide-image");
     const infoBox = document.querySelector(".trending .left .info");
@@ -250,9 +251,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tick();
     setInterval(tick, 6000);
-  })();
+  })(); // --- Mobile Layout Adjustments Logic ---
 
-  // --- Mobile Layout Adjustments Logic ---
   (function initMobileLayout() {
     const breakpoint = 992;
     const playerEl = document.querySelector(
@@ -288,9 +288,8 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("orientationchange", function () {
       setTimeout(applyLayout, 60);
     });
-  })();
+  })(); // --- Sidebar Interactions / Routing Logic ---
 
-  // --- Sidebar Interactions / Routing Logic ---
   (function initSidebarInteractions() {
     const sidebarLinks = Array.from(
       document.querySelectorAll(
@@ -317,8 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!key) return;
       sidebarLinks.forEach((a) =>
         a.classList.toggle("active", a.getAttribute("data-section") === key)
-      );
-      // 🛑 Replaced direct localStorage access with function call
+      ); // 🛑 Replaced direct localStorage access with function call
       saveLastSection(key);
       renderBanner(key);
       if (updateHash) {
@@ -338,154 +336,141 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("hashchange", function () {
       const key = window.location.hash.replace(/^#/, "");
       if (key) applySection(key, false);
-    });
+    }); // 🛑 Replaced direct localStorage access with function call
 
-    // 🛑 Replaced direct localStorage access with function call
     const initial =
       (window.location.hash && window.location.hash.replace(/^#/, "")) ||
       getLastSection() ||
       (sidebarLinks[0] && sidebarLinks[0].getAttribute("data-section"));
     if (initial) applySection(initial, false);
-  })();
+  })(); // --- Onboarding modal Logic ---
 
-  // --- Onboarding modal Logic ---
-(function initOnboarding() {
+  (function initOnboarding() {
     const onboardRoot = document.getElementById("onboard-root");
     const profileNameEl = document.getElementById("profile-name");
     const profileAvatarEls = document.querySelectorAll(
-        ".profile-avatar, .profile .user .left img"
+      ".profile-avatar, .profile .user .left img"
     );
     const playingTopImg = document.querySelector(
-        ".container .sidebar .playing .top img"
-    );
+      ".container .sidebar .playing .top img"
+    ); // Default avatar path (assuming it exists)
 
-    // Default avatar path (assuming it exists)
     const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png";
 
     function populateProfile(data) {
-        if (!data) return;
-        if (profileNameEl && data.name) profileNameEl.textContent = data.name;
-        if (data.avatar) {
-            profileAvatarEls.forEach((img) => {
-                img.src = data.avatar;
-            });
-            if (playingTopImg) playingTopImg.src = data.avatar;
-        }
+      if (!data) return;
+      if (profileNameEl && data.name) profileNameEl.textContent = data.name;
+      if (data.avatar) {
+        profileAvatarEls.forEach((img) => {
+          img.src = data.avatar;
+        });
+        if (playingTopImg) playingTopImg.src = data.avatar;
+      }
     }
 
     const existing = getStoredUserProfile();
 
     if (existing) {
-        populateProfile(existing);
-        return; // Profile already set, exit function
-    }
-    
-    // =======================================================
-    // FIX: Modal Creation and Insertion (Missing Step)
-    // This runs ONLY if the profile does not exist.
-    // =======================================================
+      populateProfile(existing);
+      return; // Profile already set, exit function
+    } // ======================================================= // FIX: Modal Creation and Insertion (Missing Step) // This runs ONLY if the profile does not exist. // =======================================================
+
     if (onboardRoot) {
-        onboardRoot.setAttribute('aria-hidden', 'false');
-        onboardRoot.innerHTML = `
-            <div id="onboard-overlay" class="onboard-overlay">
-                <div class="onboard-modal">
-                    <h2>Welcome to Nayuta!</h2>
-                    <p>Let's set up your profile.</p>
-                    <div class="onboard-avatar-section">
-                        <img id="onboard-preview" src="${DEFAULT_AVATAR}" alt="Profile Preview" class="onboard-preview-img"/>
-                        <label for="onboard-file" class="upload-label">
-                            Upload Avatar
-                            <input type="file" id="onboard-file" accept="image/*" style="display:none;"/>
-                        </label>
-                    </div>
-                    <div class="onboard-input-section">
-                        <label for="onboard-name">Your Name:</label>
-                        <input type="text" id="onboard-name" placeholder="Enter name (e.g., Guest User)"/>
-                    </div>
-                    <div class="onboard-actions">
-                        <button id="onboard-skip" class="btn-secondary">Skip</button>
-                        <button id="onboard-save" class="btn-primary">Save Profile</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    // =======================================================
-    
-    // Now that the elements are in the DOM, we can select them
+      onboardRoot.setAttribute("aria-hidden", "false");
+      onboardRoot.innerHTML = `
+            <div id="onboard-overlay" class="onboard-overlay">
+                <div class="onboard-modal">
+                    <h2>Welcome to Nayuta!</h2>
+                    <p>Let's set up your profile.</p>
+                    <div class="onboard-avatar-section">
+                        <img id="onboard-preview" src="${DEFAULT_AVATAR}" alt="Profile Preview" class="onboard-preview-img"/>
+                        <label for="onboard-file" class="upload-label">
+                            Upload Avatar
+                            <input type="file" id="onboard-file" accept="image/*" style="display:none;"/>
+                        </label>
+                    </div>
+                    <div class="onboard-input-section">
+                        <label for="onboard-name">Your Name:</label>
+                        <input type="text" id="onboard-name" placeholder="Enter name (e.g., Guest User)"/>
+                    </div>
+                    <div class="onboard-actions">
+                        <button id="onboard-skip" class="btn-secondary">Skip</button>
+                        <button id="onboard-save" class="btn-primary">Save Profile</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    } // ======================================================= // Now that the elements are in the DOM, we can select them
     const overlay = document.getElementById("onboard-overlay");
     const preview = document.getElementById("onboard-preview");
     const inputName = document.getElementById("onboard-name");
     const inputFile = document.getElementById("onboard-file");
     const btnSave = document.getElementById("onboard-save");
-    const btnSkip = document.getElementById("onboard-skip");
+    const btnSkip = document.getElementById("onboard-skip"); // Check if critical elements were actually created before proceeding
 
-    // Check if critical elements were actually created before proceeding
     if (!preview || !inputFile || !btnSave || !btnSkip) {
-        console.error("Onboarding modal elements failed to load.");
-        return; 
+      console.error("Onboarding modal elements failed to load.");
+      return;
     }
-    
-    let avatarData = preview.src; // This line now works!
+
+    let avatarData = preview.src;
 
     inputFile.addEventListener("change", function (e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                preview.src = event.target.result;
-                avatarData = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          preview.src = event.target.result;
+          avatarData = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
     function closeOnboard() {
-        if (onboardRoot) {
-             onboardRoot.setAttribute('aria-hidden', 'true');
-             onboardRoot.innerHTML = ''; // Clean up modal content
-        }
+      if (onboardRoot) {
+        onboardRoot.setAttribute("aria-hidden", "true");
+        onboardRoot.innerHTML = ""; // Clean up modal content
+      }
     }
 
     btnSave.addEventListener("click", function () {
-        const name = (inputName.value || "").trim() || "User";
-        const data = { name: name, avatar: avatarData };
-        saveUserProfile(data);
-        populateProfile(data);
-        closeOnboard();
+      const name = (inputName.value || "").trim() || "User";
+      const data = { name: name, avatar: avatarData };
+      saveUserProfile(data);
+      populateProfile(data);
+      closeOnboard();
     });
 
     btnSkip.addEventListener("click", function () {
-        // Use the default avatar path if the user skips
-        const data = { name: "User", avatar: DEFAULT_AVATAR };
-        saveUserProfile(data);
-        populateProfile(data);
-        closeOnboard();
-    });
+      // Use the default avatar path if the user skips
+      const data = { name: "User", avatar: DEFAULT_AVATAR };
+      saveUserProfile(data);
+      populateProfile(data);
+      closeOnboard();
+    }); // Handle escape key and outside click to close/skip
 
-    // Handle escape key and outside click to close/skip
     if (overlay) {
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) {
-                btnSkip.click(); // Treat outside click as skip
-            }
-        });
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+          btnSkip.click(); // Treat outside click as skip
+        }
+      });
     }
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && onboardRoot.getAttribute('aria-hidden') === 'false') {
-            btnSkip.click();
-        }
+    document.addEventListener("keydown", function (e) {
+      if (
+        e.key === "Escape" &&
+        onboardRoot.getAttribute("aria-hidden") === "false"
+      ) {
+        btnSkip.click();
+      }
     });
+  })(); // End of initOnboarding // initial render
 
-})(); // End of initOnboarding
-
-
-  // initial render
   populateGenreSelect();
-  renderMainList();
+  renderMainList(); // --- Search Autocomplete Logic ---
 
-  // --- Search Autocomplete Logic ---
   (function initSearch() {
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
@@ -559,9 +544,8 @@ document.addEventListener("DOMContentLoaded", function () {
       searchResults.style.display = "none";
       searchInput.value = "";
     }
-  })();
+  })(); // wire filter events
 
-  // wire filter events
   if (genreSelect) genreSelect.addEventListener("change", renderMainList);
 
   setInterval(function () {
@@ -593,9 +577,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (playlist.songs.length === 0) {
       alert(`Playlist "${playlist.name}" is empty.`);
       return;
-    }
+    } // Get all songs and filter to playlist songs
 
-    // Get all songs and filter to playlist songs
     const allSongs = DataService.getAll() || [];
     const playlistSongs = allSongs.filter((song) =>
       playlist.songs.includes(song.id)
@@ -604,9 +587,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (playlistSongs.length === 0) {
       alert(`No songs found in playlist "${playlist.name}".`);
       return;
-    }
+    } // Load playlist into player and start playing first song
 
-    // Load playlist into player and start playing first song
     if (player) {
       player.loadList(playlistSongs);
       player.playIndex(0);
@@ -638,9 +620,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const artistMenu = document.getElementById("artist-menu");
 
     const playlists = getPlaylists();
-    const hasPlaylists = playlists.length > 0;
+    const hasPlaylists = playlists.length > 0; // Playlists
 
-    // Playlists
     if (playlistMenu) {
       // Clear existing playlist items
       const existingPlaylists = playlistMenu.querySelectorAll(".playlist-item");
@@ -690,10 +671,7 @@ document.addEventListener("DOMContentLoaded", function () {
           handleCreatePlaylist();
         };
       }
-    }
-
-    // Artists
-    // ... (Artist menu logic remains the same)
+    } // Artists // ... (Artist menu logic remains the same)
   }
 
   function showDeleteModal(playlist) {
@@ -706,9 +684,8 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.style.display = "flex";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
-    overlay.style.zIndex = "200";
+    overlay.style.zIndex = "200"; // Modal content
 
-    // Modal content
     const modal = document.createElement("div");
     modal.className = "delete-modal-content";
     modal.style.background = "linear-gradient(180deg, #0f0f11, #151518)";
@@ -776,37 +753,59 @@ document.getElementById("current-year").textContent = new Date().getFullYear();
  * @param {string} songId - The ID of the song to be added.
  */
 
-function handleAddToPlaylist(songId) {
+function showAddToPlaylistModal(songId, songTitle) {
   const playlists = getPlaylists();
   if (playlists.length === 0) {
-    alert("No playlists found. Please create a playlist first.");
+    alert(
+      `No playlists found for "${songTitle}". Please create one first via the sidebar.`
+    );
     return;
-  }
+  } // Create modal structure (using the existing `onboard-overlay` style or similar)
 
-  const playListOptions = playlists
-    .map((p, index) => `{index + 1}. ${p.name}`)
-    .join("\n");
+  const modalId = "add-playlist-modal-overlay";
+  let overlay = document.getElementById(modalId);
+  if (overlay) overlay.remove(); // Clean up previous instance
 
-  const selection = prompt(
-    `Select a playlist to add the song:\n${playListOptions}\nEnter the number of the playlist:`
-  );
+  overlay = document.createElement("div");
+  overlay.id = modalId;
+  overlay.className = "onboard-overlay";
+  const modalContent = document.createElement("div");
+  modalContent.className = "onboard-modal"; // Using onboard-modal class from onboarding logic
+  modalContent.innerHTML = `
+            <h3>Add "${songTitle}" to Playlist</h3>
+            <p>Select a playlist:</p>
+            <div id="playlist-options-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; padding: 5px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;">
+            </div>
+            <div class="onboard-actions">
+                <button id="modal-cancel-btn" class="btn-secondary">Cancel</button>
+            </div>
+        `;
 
-  if (selection === null || selection.trim() === "") {
-    return;
-  }
+  const listContainer = modalContent.querySelector("#playlist-options-list");
 
-  const selectedIndex = parseInt(selection.trim()) - 1;
-  if (selectedIndex >= 0 && selectedIndex < playlists.length) {
-    const selectedPlaylist = playlists[selectedIndex];
+  playlists.forEach((playlist) => {
+    const btn = document.createElement("button");
+    btn.textContent = playlist.name;
+    btn.className = "load-btn"; // Reuse existing button style
+    btn.style.width = "100%";
+    btn.style.marginBottom = "6px";
+    btn.style.display = "block";
 
-    const success = addSongToPlaylist(selectedPlaylist.id, songId);
+    btn.addEventListener("click", () => {
+      const success = addSongToPlaylist(playlist.id, songId);
+      const message = success
+        ? `Added "${songTitle}" to "${playlist.name}"`
+        : `"${songTitle}" is already in "${playlist.name}"`;
+      alert(message);
+      overlay.remove();
+    });
+    listContainer.appendChild(btn);
+  });
 
-    if (success) {
-      alert(`Successfully added song to playlist: "${selectedPlaylist.name}"`);
-    } else {
-      alert(`Song is already in playlist: "${selectedPlaylist.name}"`);
-    }
-  } else {
-    alert("Invalid selection. Please enter a valid number.");
-  }
+  modalContent
+    .querySelector("#modal-cancel-btn")
+    .addEventListener("click", () => overlay.remove());
+
+  overlay.appendChild(modalContent);
+  document.body.appendChild(overlay);
 }
