@@ -1,811 +1,605 @@
 import {
   getStoredUserProfile,
   saveUserProfile,
-  getLastSection,
-  saveLastSection,
   getUserPlayCounts,
   incrementUserPlayCount,
   getPlaylists,
   createNewPlaylist,
   deletePlaylist,
   addSongToPlaylist,
+  addToRecents,
+  getRecents
 } from "./localStorageService.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  // NOTE: DataService and Player are assumed to be loaded/available globally
-  // Or, if using modules, DataService needs to be imported here and
-  // Player needs to be imported/exported from its own file.
-
   const playerContainer = document.querySelector(".player");
   const mainListEl = document.querySelector(".main-list");
   const genreSelect = document.getElementById("genre-select");
-  let player = null;
-  let currentDataHash = "";
-  const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png"; // --- Utility Functions (createCard, getFilteredList, etc.) ---
+  const topListContainer = document.getElementById("music-items");
+  const topListTitle = document.getElementById("show-all-songs");
+  const playerCover = document.getElementById("player-cover");
+  const playerTitle = document.getElementById("player-song-title");
+  const playerArtist = document.getElementById("player-song-artist");
+  
+  // --- Search Elements ---
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
 
+  let player = null;
+  let currentTopView = "explore"; 
+  const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png"; 
+
+ 
+  if (playerCover && !playerCover.getAttribute("src")) {
+    playerCover.src = "Src/Card-img/Blank.jpg"; 
+    if(playerTitle) playerTitle.textContent = "Select a Song";
+    if(playerArtist) playerArtist.textContent = "Nayuta Player";
+  }
+
+  const container = document.querySelector(".container");
+  if(container) container.classList.remove("sidebar-active");
+
+
+
+/**
+ * Carrega a playlist correta e inicia a reprodução de uma música.
+ * @param {object} song - O objeto da música a ser tocada.
+ * @param {string} listType - O tipo de lista ('main', 'personalized', 'search', etc.).
+ */
+function playSongFromCard(song, listType) {
+    if (!player) {
+      console.error("Player object is not initialized.");
+      return;
+    }
+
+    let playlist = [];
+    let songIndex = -1;
+    if (listType === "personalized") {
+        playlist = currentTopView === 'explore' ? getTop5List() : getRecentList();
+    } else if (listType === "search") {
+     
+        playlist = [song]; 
+    } else {
+        // 'main' (Lista filtrada por gênero)
+        playlist = getFilteredList(); 
+    }
+    
+    // 2. Encontra o índice da música dentro da playlist montada
+    if (playlist.length > 0) {
+        songIndex = playlist.findIndex((s) => s.id === song.id);
+    }
+
+    // Se a música foi encontrada, carrega e toca
+    if (songIndex !== -1) {
+        player.loadList(playlist);
+        player.playIndex(songIndex);
+        
+        // 3. Atualiza contadores e recentes
+        incrementUserPlayCount(song.id);
+        DataService.incrementPlayCount(song.id);
+        addToRecents(song.id); 
+    } else {
+        console.warn(`Song ID ${song.id} not found in the calculated playlist for type: ${listType}`);
+    }
+}
+
+  // --- 1. Card Creation ---
   function createCard(item, index, listType = "main") {
     const card = document.createElement("div");
     card.className = "music-card";
     card.dataset.id = item.id;
 
+    
+    const playlistBtn = document.createElement("button");
+    playlistBtn.className = "add-to-playlist-btn";
+    playlistBtn.innerHTML = "<i class='bx bx-plus-medical'></i>";
+
+    playlistBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); 
+        if (typeof window.showAddToPlaylistModal === 'function') {
+            window.showAddToPlaylistModal(item.id, item.title);
+        } else {
+             alert("A função de adicionar playlist não está disponível.");
+        }
+    });
+    card.appendChild(playlistBtn);
+
     const img = document.createElement("img");
     img.className = "music-card-img";
     img.src = item.cover || "Src/Card-img/Undead.jpg";
-    img.alt = item.title || "";
+    img.onerror = function() { this.src = "Src/Card-img/Undead.jpg"; }; 
     card.appendChild(img);
+
 
     const info = document.createElement("div");
     info.className = "music-card-info";
     const title = document.createElement("h4");
-    title.textContent = item.title || "-";
+    title.textContent = item.title || "Unknown";
     const artist = document.createElement("p");
-    artist.textContent = item.artist || "-";
+    artist.textContent = item.artist || "Unknown";
+    
     const genre = document.createElement("small");
-    genre.textContent =
-      listType === "personalized"
-        ? `Plays: ${item._score || 0}`
-        : item.genre || "";
+    if (listType === "personalized" && currentTopView === 'explore') {
+       genre.textContent = `Plays: ${item._score || item.timesPlayed || 0}`;
+    } else {
+       genre.textContent = item.genre || "Music";
+    }
+    
     info.appendChild(title);
     info.appendChild(artist);
     info.appendChild(genre);
-    card.appendChild(info); // Play/Load button for the card
+    card.appendChild(info);
 
     const playBtn = document.createElement("button");
     playBtn.className = "load-btn";
     playBtn.textContent = "Play";
     playBtn.style.display = "none";
+    
     playBtn.addEventListener("click", function (e) {
       e.stopPropagation();
-      if (!player) return;
-      const listToPlay =
-        listType === "personalized"
-          ? getCurrentSuggestedList()
-          : getFilteredList();
-      const songIndexInList = listToPlay.findIndex((s) => s.id === item.id);
+      playSongFromCard(item, listType);
+    });
 
-      if (songIndexInList !== -1) {
-        player.loadList(listToPlay);
-        player.playIndex(songIndexInList); // Manually trigger play count increment when playing from a list/grid
-        incrementUserPlayCount(item.id);
-        renderSuggested();
-      }
-    });
     card.appendChild(playBtn);
-    card.addEventListener("click", function () {
-      if (!player) return;
-      playBtn.click();
+
+    card.addEventListener("click", () => {
+        if(player) playBtn.click();
     });
-    const addBtn = document.createElement("button");
-    addBtn.className = "add-playlist-btn";
-    addBtn.textContent = "+ Playlist";
-    addBtn.dataset.songId = item.id;
-    addBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      showAddToPlaylistModal(item.id, item.title);
-    });
-    card.appendChild(addBtn);
 
     return card;
   }
 
+  // --- 2. Data Getters ---
+
   function getFilteredList() {
     const all = DataService.getAll() || [];
-    const sel = genreSelect
-      ? String(genreSelect.value || "")
-          .trim()
-          .toLowerCase()
-      : "";
+    const sel = genreSelect ? genreSelect.value.toLowerCase() : "";
     return all.filter((item) => {
-      const g = String(item.genre || "").toLowerCase();
-      if (sel && sel !== "" && g !== sel) return false;
-      return true;
+      const g = (item.genre || "").toLowerCase();
+      return !sel || g === sel;
     });
   }
 
-  function populateGenreSelect() {
-    if (!genreSelect) return;
-    const all = DataService.getAll() || [];
-    const genres = Array.from(
-      new Set(all.map((x) => (x.genre || "").trim()).filter(Boolean))
-    );
-    const prev = genreSelect.value;
-    genreSelect.innerHTML = "";
-    const optAll = document.createElement("option");
-    optAll.value = "";
-    optAll.textContent = "All genres";
-    genreSelect.appendChild(optAll);
-    genres.forEach((g) => {
-      const o = document.createElement("option");
-      o.value = g;
-      o.textContent = g;
-      genreSelect.appendChild(o);
-    });
-    if (prev) {
-      const match = Array.from(genreSelect.options).some(
-        (o) => o.value === prev
-      );
-      if (match) genreSelect.value = prev;
-      else genreSelect.value = "";
-    }
+  function getRandom5List() {
+      const all = DataService.getAll() || [];
+      if (all.length <= 5) return all;
+
+      let shuffled = all.slice();
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      return shuffled.slice(0, 5); 
   }
+
+  function getTop5List() {
+    const all = (DataService.getAll() || []).map((x) => ({...x}));
+    let userPlays = getUserPlayCounts();
+    all.forEach((t) => {
+      t._score = (t.timesPlayed || 0) + (userPlays[t.id] || 0);
+    });
+    return all.sort((a, b) => b._score - a._score).slice(0, 5); 
+  }
+
+  function getRecentList() {
+      const historyIds = getRecents(); 
+      if(historyIds.length === 0) return [];
+      const all = DataService.getAll();
+      const recentSongs = historyIds.map(id => all.find(s => s.id === id)).filter(Boolean);
+      return recentSongs.slice(0, 5);
+  }
+
+  // --- 3. Rendering Logic ---
+
+  function renderTopSection() {
+    if (!topListContainer) return;
+    
+    topListContainer.innerHTML = "";
+    topListContainer.className = "personalized-songs-grid"; 
+
+    let data = [];
+    if (currentTopView === 'explore') {
+        if(topListTitle) topListTitle.textContent = "Most Played (Top 5)";
+        data = getTop5List();
+    } else {
+        if(topListTitle) topListTitle.textContent = "Recently Played";
+        data = getRecentList();
+    }
+
+    if (data.length === 0) {
+        topListContainer.innerHTML = "<p style='color: #aaa; padding: 20px;'>No songs found.</p>";
+        return;
+    }
+
+    data.forEach((item, idx) => {
+        const card = createCard(item, idx, "personalized");
+        topListContainer.appendChild(card);
+    });
+  }
+
   function renderMainList() {
     if (!mainListEl) return;
     const list = getFilteredList();
-    const hash =
-      list.length +
-      "|" +
-      list.map((x) => x.id + ":" + (x.timesPlayed || 0)).join(",");
-    if (hash === currentDataHash) return;
-    currentDataHash = hash;
-
-    const header = mainListEl.querySelector(".main-list-header");
-    mainListEl.innerHTML = "";
-    if (header) mainListEl.appendChild(header);
+    
+    const existingGrid = mainListEl.querySelector(".main-list-grid");
+    if(existingGrid) existingGrid.remove();
 
     const grid = document.createElement("div");
     grid.className = "main-list-grid";
 
     list.forEach((item, i) => {
-      const card = createCard(item, i, "main"); // Use 'main' type
+      const card = createCard(item, i, "main");
       grid.appendChild(card);
     });
 
     mainListEl.appendChild(grid);
-  } // --- Player Initialization ---
+  }
 
-  if (playerContainer && typeof Player !== "undefined") {
-    player = Player.init(playerContainer);
-  } // --- Suggested List
-
-  function getCurrentSuggestedList() {
-    const all = (DataService.getAll() || []).map((x) => Object.assign({}, x));
-    let userPlays = getUserPlayCounts();
-
-    all.forEach((t) => {
-      const extra = Number(userPlays[t.id] || 0);
-      t._score = Number(t.timesPlayed || 0) + extra;
+  function populateGenreSelect() {
+    if (!genreSelect) return;
+    const all = DataService.getAll() || [];
+    const genres = Array.from(new Set(all.map((x) => x.genre).filter(Boolean)));
+    
+    const current = genreSelect.value;
+    genreSelect.innerHTML = `<option value="">All genres</option>`;
+    
+    genres.forEach(g => {
+        const opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        genreSelect.appendChild(opt);
     });
-
-    return all
-      .slice()
-      .sort((a, b) => b._score - a._score)
-      .slice(0, 5);
-  }
-  function renderSuggested() {
-    const container = document.getElementById("music-items"); // The container for suggested list
-    if (!container) return;
-    container.className = "personalized-songs-grid";
-    container.innerHTML = "";
-
-    const suggested = getCurrentSuggestedList();
-    suggested.forEach((t, idx) => {
-      // Note: We pass the entire list for the play logic to find the index later.
-      const card = createCard(t, idx, "personalized"); // Use 'personalized' type
-      container.appendChild(card);
-    }); // Check for the header and insert it if missing (assuming the header is outside the `music-items` div, // otherwise, add an H2 inside the container) // Since the current HTML seems to treat #music-items as the scroller for the top list, // we'll leave the title management outside this function for simplicity.
+    genreSelect.value = current;
   }
 
-  renderSuggested();
-  setInterval(renderSuggested, 5000); // --- Profile Actions (To-Do #2) ---
+  // --- 4. Search Functionality (FIXED) ---
+  if (searchInput && searchResults) {
+    searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.trim();
+        
+        if (query.length === 0) {
+            searchResults.style.display = "none";
+            return;
+        }
 
-  function handleLogout() {
-    if (
-      confirm(
-        "Are you sure you want to log out? Your profile data will be cleared."
-      )
-    ) {
-      localStorage.removeItem("nayuta_user"); // Clear user profile
-      location.reload(); // Reload to trigger onboarding/default state
-    }
-  }
-  (function initProfileActions() {
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", handleLogout);
-    }
-  })(); // --- Slideshow (Trending) Logic ---
+        const results = DataService.search(query);
+        searchResults.innerHTML = "";
 
-  (function initSlideshow() {
-    const slideImg = document.getElementById("slide-image");
-    const infoBox = document.querySelector(".trending .left .info");
-    const listenBtn = document.querySelector(
-      ".trending .left .info .btn button"
-    );
-    if (!slideImg || !infoBox) return;
-    let slides = DataService.getTop5() || [];
-    let idx = 0;
-    let currentShown = 0;
-
-    function show(i) {
-      if (!slides || slides.length === 0) return;
-      const t = slides[i % slides.length];
-      currentShown = i % slides.length;
-      slideImg.src = t.cover || "";
-      const hs = infoBox.querySelector("h2");
-      if (hs) hs.textContent = t.title || "";
-      const h3 = infoBox.querySelector("h3");
-      if (h3) h3.textContent = t.artist || "";
-      const h4 = infoBox.querySelector("h4");
-      if (h4) h4.textContent = t.album || "";
-      const h6 = infoBox.querySelector("h6");
-      if (h6) h6.textContent = "Number of Plays: " + (t.timesPlayed || 0);
-    }
-
-    if (listenBtn) {
-      listenBtn.addEventListener("click", function () {
-        if (!player) return;
-        const top = DataService.getTop5() || [];
-        player.loadList(top);
-        const playIndex =
-          (typeof currentShown === "number" ? currentShown : 0) %
-          (top.length || 1);
-        player.playIndex(playIndex);
-      });
-    }
-
-    function tick() {
-      slides = DataService.getTop5() || slides;
-      show(idx);
-      idx = (idx + 1) % (slides.length || 1);
-    }
-
-    tick();
-    setInterval(tick, 6000);
-  })(); // --- Mobile Layout Adjustments Logic ---
-
-  (function initMobileLayout() {
-    const breakpoint = 992;
-    const playerEl = document.querySelector(
-      ".container .right-section .player"
-    );
-    let playerOriginalParent = playerEl ? playerEl.parentNode : null;
-
-    function applyLayout() {
-      const isMobile = window.innerWidth <= breakpoint;
-      if (playerEl) {
-        if (isMobile) {
-          if (playerEl.parentNode !== document.body) {
-            if (!playerOriginalParent)
-              playerOriginalParent = playerEl.parentNode;
-            document.body.appendChild(playerEl);
-            playerEl.classList.add("mobile-moved");
-          }
+        if (results.length === 0) {
+            searchResults.innerHTML = `<div style="padding:10px; color:#aaa">No results found</div>`;
         } else {
-          if (
-            playerOriginalParent &&
-            playerEl.parentNode !== playerOriginalParent
-          ) {
-            playerOriginalParent.appendChild(playerEl);
-            playerEl.classList.remove("mobile-moved");
-            playerOriginalParent = null;
+            results.forEach(song => {
+                const row = document.createElement("div");
+                row.className = "search-row";
+                row.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <img src="${song.cover}" class="search-thumb">
+                        <div>
+                            <div class="search-text" style="font-weight:bold">${song.title}</div>
+                            <div class="search-text" style="font-size:12px; color:#aaa">${song.artist}</div>
+                        </div>
+                    </div>
+                    <button class="search-play"><i class="bx bx-play"></i></button>
+                `;
+                
+                // Play on click
+                row.addEventListener("click", () => {
+                    playSongFromCard(song, "search");
+                    searchResults.style.display = "none";
+                    searchInput.value = ""; // Clear input
+                });
+
+                searchResults.appendChild(row);
+            });
+        }
+        
+        searchResults.style.display = "block";
+    });
+
+    // Close search when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.style.display = "none";
+        }
+    });
+  }
+
+
+  // --- 5. Sidebar Navigation Logic ---
+  
+  const sidebarLinks = document.querySelectorAll(".sidebar .menu ul li a");
+  sidebarLinks.forEach(link => {
+      link.addEventListener("click", function(e) {
+          e.preventDefault();
+          
+          sidebarLinks.forEach(l => l.classList.remove("active"));
+          this.classList.add("active");
+
+          const section = this.getAttribute("data-section");
+
+          if (section === "explore") {
+              currentTopView = "explore";
+              renderTopSection();
+              window.location.hash = "explore";
+          } else if (section === "recent") {
+              currentTopView = "recent";
+              renderTopSection();
+              window.location.hash = "recent";
           }
-        }
-      }
-    }
-
-    applyLayout();
-    window.addEventListener("resize", applyLayout);
-    window.addEventListener("orientationchange", function () {
-      setTimeout(applyLayout, 60);
-    });
-  })(); // --- Sidebar Interactions / Routing Logic ---
-
-  (function initSidebarInteractions() {
-    const sidebarLinks = Array.from(
-      document.querySelectorAll(
-        ".container .sidebar .menu ul li a[data-section]"
-      )
-    );
-    const mainEl = document.querySelector("main");
-
-    const sectionTitles = {
-      explore: "Explore",
-      albums: "Albums",
-      artists: "Artists",
-      recent: "Recent",
-      "library-albums": "Albums (Library)",
-      favorites: "Favorites",
-      "create-playlist": "Create Playlist",
-    };
-
-    function renderBanner(key) {
-      // ... (banner rendering logic remains the same)
-    }
-
-    function applySection(key, updateHash = true) {
-      if (!key) return;
-      sidebarLinks.forEach((a) =>
-        a.classList.toggle("active", a.getAttribute("data-section") === key)
-      ); // 🛑 Replaced direct localStorage access with function call
-      saveLastSection(key);
-      renderBanner(key);
-      if (updateHash) {
-        const target = "#" + key;
-        if (location.hash !== target) location.hash = key;
-      }
-    }
-
-    sidebarLinks.forEach((a) => {
-      a.addEventListener("click", function (e) {
-        e.preventDefault();
-        const k = a.getAttribute("data-section");
-        applySection(k, true);
       });
-    });
-
-    window.addEventListener("hashchange", function () {
-      const key = window.location.hash.replace(/^#/, "");
-      if (key) applySection(key, false);
-    }); // 🛑 Replaced direct localStorage access with function call
-
-    const initial =
-      (window.location.hash && window.location.hash.replace(/^#/, "")) ||
-      getLastSection() ||
-      (sidebarLinks[0] && sidebarLinks[0].getAttribute("data-section"));
-    if (initial) applySection(initial, false);
-  })(); // --- Onboarding modal Logic ---
-
-  (function initOnboarding() {
-    const onboardRoot = document.getElementById("onboard-root");
-    const profileNameEl = document.getElementById("profile-name");
-    const profileAvatarEls = document.querySelectorAll(
-      ".profile-avatar, .profile .user .left img"
-    );
-    const playingTopImg = document.querySelector(
-      ".container .sidebar .playing .top img"
-    ); // Default avatar path (assuming it exists)
-
-    const DEFAULT_AVATAR = "Src/Logo/Arisu 2.0.png";
-
-    function populateProfile(data) {
-      if (!data) return;
-      if (profileNameEl && data.name) profileNameEl.textContent = data.name;
-      if (data.avatar) {
-        profileAvatarEls.forEach((img) => {
-          img.src = data.avatar;
-        });
-        if (playingTopImg) playingTopImg.src = data.avatar;
-      }
-    }
-
-    const existing = getStoredUserProfile();
-
-    if (existing) {
-      populateProfile(existing);
-      return; // Profile already set, exit function
-    } // ======================================================= // FIX: Modal Creation and Insertion (Missing Step) // This runs ONLY if the profile does not exist. // =======================================================
-
-    if (onboardRoot) {
-      onboardRoot.setAttribute("aria-hidden", "false");
-      onboardRoot.innerHTML = `
-            <div id="onboard-overlay" class="onboard-overlay">
-                <div class="onboard-modal">
-                    <h2>Welcome to Nayuta!</h2>
-                    <p>Let's set up your profile.</p>
-                    <div class="onboard-avatar-section">
-                        <img id="onboard-preview" src="${DEFAULT_AVATAR}" alt="Profile Preview" class="onboard-preview-img"/>
-                        <label for="onboard-file" class="upload-label">
-                            Upload Avatar
-                            <input type="file" id="onboard-file" accept="image/*" style="display:none;"/>
-                        </label>
-                    </div>
-                    <div class="onboard-input-section">
-                        <label for="onboard-name">Your Name:</label>
-                        <input type="text" id="onboard-name" placeholder="Enter name (e.g., Guest User)"/>
-                    </div>
-                    <div class="onboard-actions">
-                        <button id="onboard-skip" class="btn-secondary">Skip</button>
-                        <button id="onboard-save" class="btn-primary">Save Profile</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    } // ======================================================= // Now that the elements are in the DOM, we can select them
-    const overlay = document.getElementById("onboard-overlay");
-    const preview = document.getElementById("onboard-preview");
-    const inputName = document.getElementById("onboard-name");
-    const inputFile = document.getElementById("onboard-file");
-    const btnSave = document.getElementById("onboard-save");
-    const btnSkip = document.getElementById("onboard-skip"); // Check if critical elements were actually created before proceeding
-
-    if (!preview || !inputFile || !btnSave || !btnSkip) {
-      console.error("Onboarding modal elements failed to load.");
-      return;
-    }
-
-    let avatarData = preview.src;
-
-    inputFile.addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          preview.src = event.target.result;
-          avatarData = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    function closeOnboard() {
-      if (onboardRoot) {
-        onboardRoot.setAttribute("aria-hidden", "true");
-        onboardRoot.innerHTML = ""; // Clean up modal content
-      }
-    }
-
-    btnSave.addEventListener("click", function () {
-      const name = (inputName.value || "").trim() || "User";
-      const data = { name: name, avatar: avatarData };
-      saveUserProfile(data);
-      populateProfile(data);
-      closeOnboard();
-    });
-
-    btnSkip.addEventListener("click", function () {
-      // Use the default avatar path if the user skips
-      const data = { name: "User", avatar: DEFAULT_AVATAR };
-      saveUserProfile(data);
-      populateProfile(data);
-      closeOnboard();
-    }); // Handle escape key and outside click to close/skip
-
-    if (overlay) {
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) {
-          btnSkip.click(); // Treat outside click as skip
-        }
-      });
-    }
-
-    document.addEventListener("keydown", function (e) {
-      if (
-        e.key === "Escape" &&
-        onboardRoot.getAttribute("aria-hidden") === "false"
-      ) {
-        btnSkip.click();
-      }
-    });
-  })(); // End of initOnboarding // initial render
-
-  populateGenreSelect();
-  renderMainList(); // --- Search Autocomplete Logic ---
-
-  (function initSearch() {
-    const searchInput = document.getElementById("search-input");
-    const searchResults = document.getElementById("search-results");
-
-    if (!searchInput || !searchResults) return;
-
-    searchInput.addEventListener("input", function () {
-      const query = searchInput.value.trim();
-      if (!query) {
-        searchResults.style.display = "none";
-        return;
-      }
-
-      const results = DataService.search(query);
-      searchResults.innerHTML = "";
-
-      if (results.length === 0) {
-        searchResults.style.display = "none";
-        return;
-      }
-
-      results.forEach((song) => {
-        const row = document.createElement("div");
-        row.className = "search-row";
-
-        const img = document.createElement("img");
-        img.className = "search-thumb";
-        img.src = song.cover || "Src/Card-img/Undead.jpg";
-        img.alt = song.title;
-
-        const textDiv = document.createElement("div");
-        textDiv.className = "search-text";
-        textDiv.innerHTML = `<strong>${song.title}</strong><br><small>${song.artist}</small>`;
-
-        const playBtn = document.createElement("button");
-        playBtn.className = "search-play";
-        playBtn.textContent = "Play";
-        playBtn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          playSong(song);
-        });
-
-        row.appendChild(img);
-        row.appendChild(textDiv);
-        row.appendChild(playBtn);
-
-        row.addEventListener("click", function () {
-          playSong(song);
-        });
-
-        searchResults.appendChild(row);
-      });
-
-      searchResults.style.display = "block";
-    });
-
-    searchInput.addEventListener("blur", function () {
-      setTimeout(() => {
-        searchResults.style.display = "none";
-      }, 150); // Delay to allow click on results
-    });
-
-    function playSong(song) {
-      if (!player) return;
-      const allSongs = DataService.getAll();
-      const index = allSongs.findIndex((s) => s.id === song.id);
-      if (index !== -1) {
-        player.loadList(allSongs);
-        player.playIndex(index);
-      }
-      searchResults.style.display = "none";
-      searchInput.value = "";
-    }
-  })(); // wire filter events
-
-  if (genreSelect) genreSelect.addEventListener("change", renderMainList);
-
-  setInterval(function () {
-    populateGenreSelect();
-    renderMainList();
-  }, 2000);
-
-  function handleCreatePlaylist() {
-    const playlistName = prompt("Enter a name for your new playlist:");
-
-    if (playlistName && playlistName.trim()) {
-      const newPlaylist = createNewPlaylist(playlistName.trim());
-      alert(`Playlist "${newPlaylist.name}" created!`);
-
-      updateSidebarMessages();
-    } else if (playlistName !== null) {
-      alert("Playlist name cannot be empty.");
-    }
-  }
-
-  function handleViewPlaylist(playlistId) {
-    const playlists = getPlaylists();
-    const playlist = playlists.find((p) => p.id === playlistId);
-    if (!playlist) {
-      alert("Playlist not found.");
-      return;
-    }
-
-    if (playlist.songs.length === 0) {
-      alert(`Playlist "${playlist.name}" is empty.`);
-      return;
-    } // Get all songs and filter to playlist songs
-
-    const allSongs = DataService.getAll() || [];
-    const playlistSongs = allSongs.filter((song) =>
-      playlist.songs.includes(song.id)
-    );
-
-    if (playlistSongs.length === 0) {
-      alert(`No songs found in playlist "${playlist.name}".`);
-      return;
-    } // Load playlist into player and start playing first song
-
-    if (player) {
-      player.loadList(playlistSongs);
-      player.playIndex(0);
-      alert(
-        `Playing playlist "${playlist.name}" with ${playlistSongs.length} songs.`
-      );
-    } else {
-      alert("Player not initialized.");
-    }
-  }
-
-  function handleDeletePlaylist(playlistId) {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this playlist?"
-    );
-    if (!confirmDelete) return;
-
-    const success = deletePlaylist(playlistId);
-    if (success) {
-      alert("Playlist deleted successfully.");
-      updateSidebarMessages();
-    } else {
-      alert("Failed to delete playlist.");
-    }
-  }
-
-  function updateSidebarMessages() {
-    const playlistMenu = document.getElementById("playlist-menu");
-    const artistMenu = document.getElementById("artist-menu");
-
-    const playlists = getPlaylists();
-    const hasPlaylists = playlists.length > 0; // Playlists
-
-    if (playlistMenu) {
-      // Clear existing playlist items
-      const existingPlaylists = playlistMenu.querySelectorAll(".playlist-item");
-      existingPlaylists.forEach((li) => li.remove());
-
-      if (hasPlaylists) {
-        // Render each playlist as simple inline item
-        playlists.forEach((playlist) => {
-          const li = document.createElement("li");
-          li.className = "playlist-item";
-          li.dataset.playlistId = playlist.id;
-
-          const nameH5 = document.createElement("h5");
-          nameH5.textContent = playlist.name;
-          nameH5.className = "playlist-name";
-          nameH5.style.display = "inline";
-          nameH5.addEventListener("click", function () {
-            handleViewPlaylist(playlist.id);
-          });
-
-          const deleteBtn = document.createElement("button");
-          deleteBtn.textContent = "Delete";
-          deleteBtn.className = "playlist-btn delete-btn";
-          deleteBtn.style.float = "right";
-          deleteBtn.addEventListener("click", function () {
-            showDeleteModal(playlist);
-          });
-
-          li.appendChild(nameH5);
-          li.appendChild(deleteBtn);
-          playlistMenu.appendChild(li);
-        });
-      } else {
-        // Show create button when no playlists
-        let li = playlistMenu.querySelector(".empty-message");
-        if (!li) {
-          li = document.createElement("li");
-          li.className = "empty-message";
-          const btn = document.createElement("button");
-          btn.className = "menu-empty-btn";
-          li.appendChild(btn);
-          playlistMenu.appendChild(li);
-        }
-        const btn = li.querySelector(".menu-empty-btn");
-        btn.textContent = "Create Playlist";
-        btn.onclick = function () {
-          handleCreatePlaylist();
-        };
-      }
-    } // Artists // ... (Artist menu logic remains the same)
-  }
-
-  function showDeleteModal(playlist) {
-    // Create modal overlay
-    const overlay = document.createElement("div");
-    overlay.className = "delete-modal-overlay";
-    overlay.style.position = "fixed";
-    overlay.style.inset = "0";
-    overlay.style.background = "rgba(0, 0, 0, 0.6)";
-    overlay.style.display = "flex";
-    overlay.style.alignItems = "center";
-    overlay.style.justifyContent = "center";
-    overlay.style.zIndex = "200"; // Modal content
-
-    const modal = document.createElement("div");
-    modal.className = "delete-modal-content";
-    modal.style.background = "linear-gradient(180deg, #0f0f11, #151518)";
-    modal.style.border = "1px solid rgba(255, 255, 255, 0.04)";
-    modal.style.borderRadius = "12px";
-    modal.style.padding = "18px";
-    modal.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.6)";
-    modal.style.color = "var(--text-color)";
-    modal.style.maxWidth = "400px";
-    modal.style.width = "100%";
-
-    const title = document.createElement("h3");
-    title.textContent = `Delete Playlist: ${playlist.name}`;
-    title.style.margin = "0 0 8px 0";
-    title.style.fontSize = "18px";
-    title.style.color = "var(--main-color)";
-
-    const info = document.createElement("p");
-    info.textContent = `Songs in playlist: ${playlist.songs.length}`;
-    info.style.margin = "0 0 12px 0";
-
-    const actions = document.createElement("div");
-    actions.style.display = "flex";
-    actions.style.gap = "8px";
-    actions.style.justifyContent = "flex-end";
-
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "Cancel";
-    cancelBtn.className = "btn-secondary";
-    cancelBtn.addEventListener("click", function () {
-      overlay.remove();
-    });
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.className = "btn-primary";
-    deleteBtn.addEventListener("click", function () {
-      handleDeletePlaylist(playlist.id);
-      overlay.remove();
-    });
-
-    actions.appendChild(cancelBtn);
-    actions.appendChild(deleteBtn);
-
-    modal.appendChild(title);
-    modal.appendChild(info);
-    modal.appendChild(actions);
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-  }
-
-  updateSidebarMessages();
-
-  setInterval(updateSidebarMessages, 2000);
-
-  (function initProfileActions() {})();
-});
-
-// Set current year in footer
-
-document.getElementById("current-year").textContent = new Date().getFullYear();
-
-/**
- * Handles the UI flow for adding a specific song to a user's playlist.
- * @param {string} songId - The ID of the song to be added.
- */
-
-function showAddToPlaylistModal(songId, songTitle) {
-  const playlists = getPlaylists();
-  if (playlists.length === 0) {
-    alert(
-      `No playlists found for "${songTitle}". Please create one first via the sidebar.`
-    );
-    return;
-  } // Create modal structure (using the existing `onboard-overlay` style or similar)
-
-  const modalId = "add-playlist-modal-overlay";
-  let overlay = document.getElementById(modalId);
-  if (overlay) overlay.remove(); // Clean up previous instance
-
-  overlay = document.createElement("div");
-  overlay.id = modalId;
-  overlay.className = "onboard-overlay";
-  const modalContent = document.createElement("div");
-  modalContent.className = "onboard-modal"; // Using onboard-modal class from onboarding logic
-  modalContent.innerHTML = `
-            <h3>Add "${songTitle}" to Playlist</h3>
-            <p>Select a playlist:</p>
-            <div id="playlist-options-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; padding: 5px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px;">
-            </div>
-            <div class="onboard-actions">
-                <button id="modal-cancel-btn" class="btn-secondary">Cancel</button>
-            </div>
-        `;
-
-  const listContainer = modalContent.querySelector("#playlist-options-list");
-
-  playlists.forEach((playlist) => {
-    const btn = document.createElement("button");
-    btn.textContent = playlist.name;
-    btn.className = "load-btn"; // Reuse existing button style
-    btn.style.width = "100%";
-    btn.style.marginBottom = "6px";
-    btn.style.display = "block";
-
-    btn.addEventListener("click", () => {
-      const success = addSongToPlaylist(playlist.id, songId);
-      const message = success
-        ? `Added "${songTitle}" to "${playlist.name}"`
-        : `"${songTitle}" is already in "${playlist.name}"`;
-      alert(message);
-      overlay.remove();
-    });
-    listContainer.appendChild(btn);
   });
 
-  modalContent
-    .querySelector("#modal-cancel-btn")
-    .addEventListener("click", () => overlay.remove());
+  // --- 6. Player Init ---
+  if (playerContainer && typeof Player !== "undefined") {
+    player = Player.init(playerContainer);
+  }
 
-  overlay.appendChild(modalContent);
-  document.body.appendChild(overlay);
+  // --- 7. Slideshow Logic ---
+  const slideImg = document.getElementById("slide-image");
+  const trendingInfo = document.querySelector(".trending .left .info");
+  let slideIndex = 0;
+  let trendingSongs = []; // Armazena a lista aleatória atual
+
+  function slideshowTick() {
+      // Regenera a lista aleatória quando o carrossel atinge o fim
+      if (slideIndex === 0 || trendingSongs.length === 0) {
+          trendingSongs = getRandom5List(); // Agora a função existe neste escopo
+      }
+
+      if (!trendingSongs.length || !slideImg || !trendingInfo) return;
+
+      // Move para o próximo índice dentro da lista trendingSongs
+      slideIndex = (slideIndex + 1) % trendingSongs.length; 
+      
+      const song = trendingSongs[slideIndex];
+
+      slideImg.src = song.cover || "Src/Card-img/Undead.jpg";
+      slideImg.onerror = function() { this.src = "Src/Card-img/Undead.jpg"; };
+      trendingInfo.querySelector("h2").textContent = song.title;
+      trendingInfo.querySelector("h3").textContent = song.artist;
+      trendingInfo.querySelector("h4").textContent = song.genre; 
+      trendingInfo.querySelector("h6").textContent = "Now Trending"; 
+      
+      const btn = trendingInfo.querySelector("button");
+      btn.onclick = () => {
+          if(player) {
+              player.loadList(trendingSongs);
+              player.playIndex(slideIndex);
+              
+              incrementUserPlayCount(song.id);
+              addToRecents(song.id);
+          }
+      };
+  }
+  
+  slideshowTick(); 
+  setInterval(slideshowTick, 5000);
+
+  // --- 8. Profile & Logout Logic ---
+  const settingsBtn = document.getElementById("settings-btn");
+  const settingsDrop = document.getElementById("settings-dropdown");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  if (settingsBtn && settingsDrop) {
+      settingsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          settingsDrop.classList.toggle("open");
+      });
+      document.addEventListener("click", () => {
+          settingsDrop.classList.remove("open");
+      });
+  }
+
+  if (logoutBtn) {
+      logoutBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          if(confirm("Log out? Your play history and local profile will be cleared.")) {
+              localStorage.removeItem("nayuta_user");
+              localStorage.removeItem("nayuta_play_counts");
+              localStorage.removeItem("nayuta_recent_history");
+              window.location.reload(); 
+          }
+      });
+  }
+
+  // --- 9. Onboarding (Login) Logic ---
+  (function initOnboarding() {
+    const onboardRoot = document.getElementById("onboard-root");
+    const existing = getStoredUserProfile();
+    
+    const updateProfileUI = (data) => {
+        document.getElementById("profile-name").textContent = data.name;
+        document.querySelectorAll(".profile-avatar").forEach(img => {
+            img.src = data.avatar || DEFAULT_AVATAR;
+            img.onerror = function() { this.src = DEFAULT_AVATAR; }; 
+        });
+    };
+
+    if (existing) {
+        updateProfileUI(existing);
+        return;
+    }
+
+    onboardRoot.setAttribute("aria-hidden", "false");
+    onboardRoot.innerHTML = `
+        <div class="onboard-overlay" id="onboard-overlay">
+            <div class="onboard-card">
+                <h3>Welcome to Nayuta!</h3>
+                <div class="onboard-row">
+                    <img id="preview-img" src="${DEFAULT_AVATAR}" />
+                    <div class="inputs">
+                        <input type="file" id="file-input" accept="image/*" style="margin-bottom:8px">
+                        <input type="text" id="name-input" class="onboard-input" placeholder="Your Name">
+                    </div>
+                </div>
+                <div class="onboard-actions">
+                    <button id="btn-skip" class="btn-secondary">Skip</button>
+                    <button id="btn-save" class="btn-primary">Login</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const preview = document.getElementById("preview-img");
+    const fileIn = document.getElementById("file-input");
+    
+    fileIn.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => preview.src = ev.target.result;
+            reader.readAsDataURL(file);
+        }
+    });
+
+    const saveAndClose = (name, avatar) => {
+        const data = { name: name || "User", avatar: avatar };
+        saveUserProfile(data);
+        updateProfileUI(data);
+        onboardRoot.innerHTML = ""; 
+        onboardRoot.setAttribute("aria-hidden", "true");
+    };
+
+    document.getElementById("btn-save").addEventListener("click", () => {
+        saveAndClose(document.getElementById("name-input").value, preview.src);
+    });
+
+    document.getElementById("btn-skip").addEventListener("click", () => {
+        saveAndClose("Guest", DEFAULT_AVATAR);
+    });
+  })();
+
+  populateGenreSelect();
+  renderMainList();
+  renderTopSection();
+  
+  genreSelect.addEventListener("change", renderMainList);
+
+  // --- 10. Playlist Sidebar Logic ---
+  const playlistMenu = document.getElementById("playlist-menu");
+
+  function renderSidebarPlaylists() {
+    if (!playlistMenu) return;
+    playlistMenu.innerHTML = "";
+
+    const createLi = document.createElement("li");
+    createLi.className = "playlist-create-item";
+    createLi.innerHTML = `<i class='bx bx-plus'></i> <span>Create Playlist</span>`;
+    createLi.style.cursor = "pointer";
+    createLi.addEventListener("click", () => {
+      const name = prompt("Enter playlist name:");
+      if (name) {
+        createNewPlaylist(name);
+        renderSidebarPlaylists(); 
+      }
+    });
+    playlistMenu.appendChild(createLi);
+
+    const playlists = getPlaylists();
+    playlists.forEach((pl) => {
+      const li = document.createElement("li");
+      li.className = "playlist-item";
+      
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = pl.name;
+      nameSpan.className = "playlist-name";
+      nameSpan.addEventListener("click", () => {
+        if(pl.songs.length > 0 && player) {
+           const allSongs = DataService.getAll();
+           const playlistSongs = pl.songs.map(id => allSongs.find(s => s.id === id)).filter(Boolean);
+           player.loadList(playlistSongs);
+           player.playIndex(0);
+        } else {
+            alert("This playlist is empty!");
+        }
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "delete-btn";
+      delBtn.innerHTML = "<i class='bx bx-trash'></i>";
+      delBtn.onclick = (e) => {
+          e.stopPropagation();
+          if(confirm(`Delete playlist "${pl.name}"?`)) {
+              deletePlaylist(pl.id);
+              renderSidebarPlaylists();
+          }
+      };
+
+      li.appendChild(nameSpan);
+      li.appendChild(delBtn);
+      playlistMenu.appendChild(li);
+    });
+  }
+  
+ 
+  window.refreshSidebarPlaylists = renderSidebarPlaylists;
+  renderSidebarPlaylists();
+});
+
+
+
+window.showAddToPlaylistModal = function(songId, songTitle) {
+    const playlists = getPlaylists();
+    if(playlists.length === 0) {
+        alert("Please create a playlist in the sidebar first!");
+        return;
+    }
+    
+    const overlay = document.createElement("div");
+    overlay.className = "onboard-overlay"; 
+    
+    let html = `
+        <div class="onboard-card" style="width:300px">
+            <h3>Add to Playlist</h3>
+            <p>Song: <b>${songTitle}</b></p>
+            <div style="display:flex; flex-direction:column; gap:8px; margin: 10px 0;">
+    `;
+    
+    playlists.forEach(p => {
+        html += `<button class="btn-secondary playlist-select-btn" data-pid="${p.id}">${p.name}</button>`;
+    });
+    
+    html += `</div><button id="close-plist-modal" style="width:100%; margin-top:10px" class="btn-primary">Cancel</button></div>`;
+    
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
+    
+    overlay.querySelectorAll(".playlist-select-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const pid = btn.dataset.pid;
+            const success = addSongToPlaylist(pid, songId);
+            alert(success ? "Added!" : "Song already in this playlist.");
+            overlay.remove();
+        });
+    });
+    
+    document.getElementById("close-plist-modal").addEventListener("click", () => overlay.remove());
+};
+
+
+// Mobile Menu Toggle
+
+const menuOpenBtn = document.getElementById("menu-open"); 
+const sidebarToggleBtn = document.getElementById("sidebar-toggle"); 
+const container = document.querySelector(".container");
+
+function toggleSidebar() {
+    container.classList.toggle("sidebar-active");
 }
+
+if(menuOpenBtn) menuOpenBtn.addEventListener("click", toggleSidebar);
+if(sidebarToggleBtn) sidebarToggleBtn.addEventListener("click", toggleSidebar);
+
+
+container.addEventListener("click", (e) => {
+    if (container.classList.contains("sidebar-active") && 
+        !e.target.closest(".sidebar") && 
+        !e.target.closest(".menu-btn")) {
+        container.classList.remove("sidebar-active");
+    }
+});
+
+
+

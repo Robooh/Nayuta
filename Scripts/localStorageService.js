@@ -5,7 +5,8 @@ const STORAGE_KEYS = {
     USER_PROFILE: 'nayuta_user',
     PLAY_COUNTS: 'nayuta_play_counts',
     LAST_SECTION: 'nayuta_last_section',
-    USER_PLAYLISTS: 'nayuta_playlists' 
+    USER_PLAYLISTS: 'nayuta_playlists',
+    RECENT_HISTORY: 'nayuta_recent_history' 
 };
 
 
@@ -122,5 +123,29 @@ export function deletePlaylist(playlistId) {
     } catch (e) {
         console.error('Error deleting playlist:', e);
         return false;
+    }
+}
+
+export function addToRecents(songId) {
+    try {
+        let history = getRecents();
+        // Remove if already exists (to move it to the top)
+        history = history.filter(id => id !== songId);
+        // Add to front
+        history.unshift(songId);
+        // Limit to 20 items
+        if (history.length > 20) history.pop();
+        localStorage.setItem(STORAGE_KEYS.RECENT_HISTORY, JSON.stringify(history));
+    } catch (e) {
+        console.error('Error adding to recents:', e);
+    }
+}
+
+export function getRecents() {
+    try {
+        const h = localStorage.getItem(STORAGE_KEYS.RECENT_HISTORY);
+        return h ? JSON.parse(h) : [];
+    } catch (e) {
+        return [];
     }
 }

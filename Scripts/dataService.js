@@ -1,23 +1,19 @@
-// DataService: mock de músicas
+
 (function () {
-  // Nota: artist pode ser extraído de arquivos cujo nome esteja no formato "Title - Artist.mp3".
-  // Adicionamos o campo `genre` e atualizamos alguns nomes de cover para refletir novas imagens.
-  // Atualizado a partir do conteúdo real em Src/Music e Src/Card-img
-  // Artist é extraído do padrão "Title - Artist.mp3" quando aplicável.
   const musicData = [
-    { id: 1, title: 'Tracen Ondo', artist: 'ナリタブライアン (CV. 衣川里佳)', audio: 'Src/Music/Tracen ondo  - ナリタブライアン (CV. 衣川里佳).mp3', cover: 'Src/Card-img/Tracen Ondo.jpg', genre: 'Rock', timesPlayed: 150 },
-    { id: 2, title: '2005', artist: 'South Arcade', audio: 'Src/Music/2005 - South Arcade.mp3', cover: 'Src/Card-img/2005.jpg', genre: 'Rock', timesPlayed: 80 },
-    { id: 3, title: 'Crushcrushcrush', artist: 'Paramore', audio: 'Src/Music/Crushcrushcrush - Paramore.mp3', cover: 'Src/Card-img/CrushCrush.jpg', genre: 'Rock', timesPlayed: 205 },
-    { id: 4, title: 'Hai Yorokonde', artist: 'Kocchi no Kento', audio: 'Src/Music/Hai Yorokonde - Kocchi no Kento.mp3', cover: 'Src/Card-img/Hai Yorokonde.jpg', genre: 'Pop', timesPlayed: 70 },
-    { id: 5, title: 'KAGUTSUCHI', artist: 'A.SAKA', audio: 'Src/Music/KAGUTSUCHI - A.SAKA.mp3', cover: 'Src/Card-img/A.saka.jpg', genre: 'Rock', timesPlayed: 60 },
-    { id: 6, title: "Let's Play A Game!", artist: 'Vanguard S.S', audio: 'Src/Music/Let Play A Game - Vanguard S.S.mp3', cover: 'Src/Card-img/Let\'s Play.jpg', genre: 'Electronic', timesPlayed: 40 },
-    { id: 7, title: 'Resolute Secation', artist: 'Vanguard S.S', audio: 'Src/Music/Resolute Secation - Vanguard S.S.mp3', cover: 'Src/Card-img/PoP - Resolute.jpg', genre: 'Rock', timesPlayed: 95 },
-    { id: 8, title: 'Tetoris', artist: 'Teto', audio: 'Src/Music/Tetoris - Teto.mp3', cover: 'Src/Card-img/Tetoris.png', genre: 'Pop', timesPlayed: 30 },
-    { id: 9, title: 'UNDEAD', artist: 'YOASOBI', audio: 'Src/Music/UNDEAD - YOASOBI.mp3', cover: 'Src/Card-img/Undead.jpg', genre: 'Pop', timesPlayed: 2984 },
-    { id: 10, title: 'ラビットホール', artist: 'DECO*27', audio: 'Src/Music/RabitHole.mp3', cover: 'Src/Card-img/Rh.jpg', genre: 'Pop', timesPlayed: 3100 },
-    { id: 11, title: 'Travelers', artist: 'Andrew Prahlow', audio: 'Src/Music/Travelers.mp3', cover: 'Src/Card-img/Ow.jpg', genre: 'Pop', timesPlayed: 5000},
-    { id: 12, title: 'Assault TAXI ', artist: '∀Ｓ∀', audio: 'Src/Music/Taxi.mp3', cover: 'Src/Card-img/Taxi.jpg', genre: 'Electronic', timesPlayed: 190 }
-   
+    { id: 1, title: 'Tracen Ondo', artist: 'ナリタブライアン (CV. 衣川里佳)', audio: 'Src/Music/Tracen ondo  - ナリタブライアン (CV. 衣川里佳).mp3', cover: 'Src/Card-img/Tracen Ondo.jpg', genre: 'Rock', timesPlayed: 1570 },
+    { id: 2, title: '2005', artist: 'South Arcade', audio: 'Src/Music/2005 - South Arcade.mp3', cover: 'Src/Card-img/2005.jpg', genre: 'Rock', timesPlayed: 1987 },
+    { id: 3, title: 'Crushcrushcrush', artist: 'Paramore', audio: 'Src/Music/Crushcrushcrush - Paramore.mp3', cover: 'Src/Card-img/CrushCrush.jpg', genre: 'Rock', timesPlayed: 2305 },
+    { id: 4, title: 'Hai Yorokonde', artist: 'Kocchi no Kento', audio: 'Src/Music/Hai Yorokonde - Kocchi no Kento.mp3', cover: 'Src/Card-img/Hai Yorokonde.jpg', genre: 'Pop', timesPlayed: 1670 },
+    { id: 5, title: 'KAGUTSUCHI', artist: 'A.SAKA', audio: 'Src/Music/KAGUTSUCHI - A.SAKA.mp3', cover: 'Src/Card-img/A.saka.jpg', genre: 'Rock', timesPlayed: 1160 },
+    { id: 6, title: "Let's Play A Game!", artist: 'Vanguard S.S', audio: 'Src/Music/Let Play A Game - Vanguard S.S.mp3', cover: 'Src/Card-img/Let\'s Play.jpg', genre: 'Electronic', timesPlayed: 1340 },
+    { id: 7, title: 'Resolute Secation', artist: 'Vanguard S.S', audio: 'Src/Music/Resolute Secation - Vanguard S.S.mp3', cover: 'Src/Card-img/PoP - Resolute.jpg', genre: 'Rock', timesPlayed: 1095 },
+    { id: 8, title: 'Tetoris', artist: 'Teto', audio: 'Src/Music/Tetoris - Teto.mp3', cover: 'Src/Card-img/Tetoris.png', genre: 'Pop', timesPlayed: 1333 },
+    { id: 9, title: 'UNDEAD', artist: 'YOASOBI', audio: 'Src/Music/UNDEAD - YOASOBI.mp3', cover: 'Src/Card-img/Undead.jpg', genre: 'Pop', timesPlayed: 2285 },
+    { id: 10, title: 'ラビットホール', artist: 'DECO*27', audio: 'Src/Music/RabitHole.mp3', cover: 'Src/Card-img/Rh.jpg', genre: 'Pop', timesPlayed: 1650 },
+    { id: 11, title: 'Travelers', artist: 'Andrew Prahlow', audio: 'Src/Music/Travelers.mp3', cover: 'Src/Card-img/Ow.jpg', genre: 'Pop', timesPlayed: 2500},
+    { id: 12, title: 'Assault TAXI ', artist: '∀Ｓ∀', audio: 'Src/Music/Taxi.mp3', cover: 'Src/Card-img/Taxi.jpg', genre: 'Electronic', timesPlayed: 1490 },
+    { id: 13, title: 'Propaganda!', artist: 'Crusher ft. Evil', audio: 'Src/Music/Prop.mp3', cover: 'Src/Card-img/Prop.jpg', genre: 'Rock', timesPlayed: 1810 }
   ];
 
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }

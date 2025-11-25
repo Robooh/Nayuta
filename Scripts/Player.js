@@ -102,7 +102,6 @@
     // --- Player Core Logic ---
 
     function loadTrack(track) {
-        // ⭐ FIX: Changed 'track.src' to 'track.audio' to match your data structure
         if (!track || typeof track.audio !== 'string' || track.audio.length === 0) {
             console.error("Player Load Error: Track object is missing or 'audio' path is invalid. Data:", track);
             if (titleEl) titleEl.textContent = "Track Error";

@@ -27,23 +27,16 @@
           </button>
         </div>
         <div class="menu">
-          <h5>Menu</h5>
-          <ul>
-            <li>
-              <i class="bx bxs-bolt-circle"></i>
-              <a href="#" data-section="explore">Explore</a>
-            </li>
-
-            <li>
-              <i class="bx bxs-album"></i>
-              <a href="#" data-section="albums">Albums</a>
-            </li>
-
-              <li><i class="bx bx-undo"></i>
-              <a href="#" data-section="recent">Recent</a>
-            </li>
-          </ul>
-        </div>
+  <h5>Menu</h5>
+  <ul>
+    <li>
+      <i class="bx bxs-bolt-circle"></i>
+      <a href="#" data-section="explore">Explore</a> </li>
+    <li>
+      <i class="bx bx-undo"></i>
+      <a href="#" data-section="recent">Recent</a> </li>
+    </ul>
+</div>
 
         <div class="menu">
             <h5>Playlists</h5>
@@ -51,23 +44,16 @@
               <!-- Playlists will be dynamically added here -->
             </ul>
           </div>
-          <div class="menu">
-            <h5>Artists</h5>
-            <ul id="artist-menu" class="artist-menu">
-              <!-- Artists will be dynamically added here -->
-            </ul>
-          </div>
-
       </aside>
 
       <main>
         <header>
           <div class="nav-links">
             <button class="menu-btn" id="menu-open" title="Abrir menu">
-              &gt;
+              <i class="bx bx-menu"></i>
             </button>
-            <a href="#">Music-list</a>
-            <a href="#">Information</a>
+            <a href="#main-list-anchor">Music-list</a>
+            <a href="#site-footer">Information</a>
           </div>
 
           <div class="search">
@@ -120,7 +106,7 @@
           </div>
         </div>
 
-        <div class="main-list">
+        <div class="main-list" id="main-list-anchor">
           <div class="main-list-header">
             <h2>Song List</h2>
             <div class="genre-filters">
@@ -131,7 +117,7 @@
             </div>
           </div>
         </div>
-          <footer class="site-footer">
+          <footer class="site-footer" id="site-footer">
     <div class="footer-content">
         <div class="footer-section about">
             <h3>Nayuta</h3>
@@ -252,7 +238,7 @@
             <div class="modal-content">
               <h3>Parabéns pelo Score! 🎉</h3>
               <p id="final-score-message"></p>
-              <p class="small-text">Eu não sabia o que fazer com o  espaço</p>
+              <p class="small-text">Muito espaço sobrando lol</p>
               <button id="close-modal-btn">Fechar</button>
             </div>
           </div>
