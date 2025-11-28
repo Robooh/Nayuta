@@ -18,6 +18,9 @@
     overflow-y: visible;
   }
 
+
+  
+
 /* --- Sidebar & Overlay Fixes --- */
 .container .sidebar {
   position: fixed;
@@ -25,17 +28,17 @@
   top: 0;
   width: 280px;
   height: 100vh;
-  z-index: 200; /* Increased z-index to be above the overlay */
+  z-index: 200; 
   background-color: #18181d;
   transition: left 0.3s ease-in-out;
   box-shadow: 5px 0 15px rgba(0,0,0,0.5);
 }
 
 .container.sidebar-active .sidebar {
-  left: 0 !important; /* Force sidebar into view */
+  left: 0 !important; 
 }
 
-/* Ensure overlay is BEHIND the sidebar (z-index 90 vs 200) */
+
 .container.sidebar-active::after {
   content: '';
   position: fixed;
@@ -46,6 +49,16 @@
   background: rgba(0, 0, 0, 0.7);
   z-index: 90; 
   backdrop-filter: blur(2px);
+}
+
+.slideshow { width: 100%; }
+
+.slideshow img#slide-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9; 
+    max-height: 220px;  
+    object-fit: cover;
 }
 
 /* --- Fixed Player Bar Positioning --- */
@@ -72,9 +85,6 @@
   .menu-btn i {
   font-size: 20px;
 }
-
-
-
 
   .container main header .search {
     width: 100%; 
@@ -133,82 +143,121 @@
   }
 
 
+  /* --- Right Section Hide & Mobile Profile Show --- */
   .container .right-section {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    display: none; /* Hide desktop right section on mobile */
+  }
+
+  .mobile-profile-container {
+      display: flex; /* Show the mobile profile container */
+      padding: 10px;
+      border-top: 1px solid var(--border-color);
+      margin-top: auto; /* Push to the bottom of the sidebar */
+  }
+
+  .mobile-profile-container .profile {
+      width: 100%;
+      padding: 0;
+      border: none;
+  }
+  
+  /* --- Slideshow Info Style Improvement --- */
+  .slideshow-info {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .slideshow-info h4 {
+    font-size: 1.2em;
+    color: var(--main-color);
+    text-align: center;
+  }
+  
+  .slideshow-info p {
+    font-size: 0.9em;
+    color: var(--second-color);
+    text-align: center;
+  }
+
+  /* --- Remove Hover Effects on Interactive Elements --- */
+  /* Remove hover effects on sidebar menu and playlist items */
+  .container .sidebar .menu ul li:hover {
+    background-color: transparent; 
+    border-color: rgba(255, 255, 255, 0.1); 
+  }
+
+  .container .sidebar .menu ul li:hover a,
+  .container .sidebar .menu ul li:hover i,
+  .playlist-item:hover {
+    color: var(--text-color); 
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* --- Music List Card Size & Carousel Effect (Horizontal Scroll) --- */
+  
+  .personalized-songs-grid,
+  .lists-grid .items { /* Apply to Top 5/Recent and Main Music List (Fix the size) */
+    display: flex; 
+    flex-wrap: nowrap; /* Forces content onto a single line */
+    overflow-x: auto; /* Enable horizontal scrolling (carousel/row effect) */
+    overflow-y: hidden;
+    padding-bottom: 5px; 
+    gap: 15px; 
+    /* The scrollbar for this section is usually hidden by the global scrollbar-width: none rule */
+    max-height: none; /* Override desktop max-height */
+  }
+
+  .music-card {
+    min-width: 150px; /* Improved card size and fixed width */
+    max-width: 150px; 
     height: auto;
-    padding: 0;
-    background: transparent;
-    z-index: 200;
-    pointer-events: none;
-  }
-    /* (Maybe add to the sidebar later) */
-
-  .container .right-section .profile {
-    display: none; 
+    flex-shrink: 0; /* Prevents cards from shrinking */
+    transition: none;
   }
 
+  .music-card:hover {
+    background-color: transparent; 
+    border-color: rgba(255, 255, 255, 0.04); 
+  }
 
-  .container .right-section .player {
-    pointer-events: auto; 
-    flex-direction: row; /* Horizontal layout */
+  /* --- Card Play Button (Always Display & Improve Size) --- */
+  .music-card .load-btn {
+    display: flex !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--main-color);
+    color: var(--background-color);
+    border: none;
     align-items: center;
-    justify-content: space-between;
-    height: 80px;
-    background: rgba(24, 24, 29, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 0;
-    padding: 0 15px;
-    margin: 0;
+    justify-content: center;
+    opacity: 0.9;
+    display: none !important;
   }
-
-
-  .player-top {
-    width: auto;
-    flex: 1;
-    margin-bottom: 0;
+  
+  .music-card .load-btn i {
+    color: var(--background-color);
+    font-size: 20px;
   }
-
-  .song-info {
-    gap: 10px;
+  
+  /* Keep add-to-playlist button small and visible for function */
+  .music-card .add-to-playlist-btn {
+      display: flex !important;
+      top: unset;
+      bottom: 5px;
+      right: 5px;
+      left: unset;
+      transform: none;
+      width: 30px;
+      height: 30px;
+      opacity: 0.7;
+      z-index: 10;
   }
-
-  .song-info img {
-    width: 50px;
-    height: 50px;
-    border-radius: 4px;
-  }
-
-  .song-details h4 {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-  }
-
-  .song-details p {
-    font-size: 12px;
-  }
-
-
-  .player-progress {
-    display: none; 
-  }
-
-  /* Controls */
-  .player-footer {
-    width: auto;
-  }
-
-  .player-controls {
-    gap: 8px;
-  }
-
 
   #loop-btn  { 
     display: none !important; 
@@ -218,22 +267,23 @@
   #play-btn {
     width: 40px;
     height: 40px;
-    font-size: 24px; /* Larger icon */
+    font-size: 24px; 
   }
   
-  #next-btn, #left-btn #volume-btn {
+  #next-btn #left-btn #volume-btn {
     display: flex !important;
     width: 32px;
     height: 32px;
+    font-size: 24px;
     
   }
 
-  /* 8. Snake Game & Extras */
+
   .snake-game-container {
-    display: none; /* Hide game on mobile */
+    display: none; 
   }
   
-  /* Footer adjustments */
+
   .footer-content {
     flex-direction: column;
     gap: 30px;

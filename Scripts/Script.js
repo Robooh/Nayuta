@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const playerCover = document.getElementById("player-cover");
   const playerTitle = document.getElementById("player-song-title");
   const playerArtist = document.getElementById("player-song-artist");
+
+  
   
   // --- Search Elements ---
   const searchInput = document.getElementById("search-input");
@@ -35,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if(playerTitle) playerTitle.textContent = "Select a Song";
     if(playerArtist) playerArtist.textContent = "Nayuta Player";
   }
+
+  // Removed redundant mobileLogoutBtn logic check here (now handled in section 8)
 
   const container = document.querySelector(".container");
   if(container) container.classList.remove("sidebar-active");
@@ -78,76 +82,73 @@ function playSongFromCard(song, listType) {
         incrementUserPlayCount(song.id);
         DataService.incrementPlayCount(song.id);
         addToRecents(song.id); 
+        
+        // FIX: Re-render personalized lists after play count/recent history update (The F5 fix)
+        renderTopSection(); // <--- ADDED LINE
     } else {
         console.warn(`Song ID ${song.id} not found in the calculated playlist for type: ${listType}`);
     }
 }
 
-  // --- 1. Card Creation ---
-  function createCard(item, index, listType = "main") {
-    const card = document.createElement("div");
-    card.className = "music-card";
-    card.dataset.id = item.id;
+// --- 1. Card Creation ---
+function createCard(item, index, listType = "main") {
+  const card = document.createElement("div");
+  card.className = "music-card";
+  card.dataset.id = item.id;
 
-    
-    const playlistBtn = document.createElement("button");
-    playlistBtn.className = "add-to-playlist-btn";
-    playlistBtn.innerHTML = "<i class='bx bx-plus-medical'></i>";
+  
+  const playlistBtn = document.createElement("button");
+  playlistBtn.className = "add-to-playlist-btn";
+  playlistBtn.innerHTML = "<i class='bx bx-plus-medical'></i>";
 
-    playlistBtn.addEventListener("click", (e) => {
-        e.stopPropagation(); 
-        if (typeof window.showAddToPlaylistModal === 'function') {
-            window.showAddToPlaylistModal(item.id, item.title);
-        } else {
-             alert("A função de adicionar playlist não está disponível.");
-        }
-    });
-    card.appendChild(playlistBtn);
+  playlistBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); 
+      if (typeof window.showAddToPlaylistModal === 'function') {
+          window.showAddToPlaylistModal(item.id, item.title);
+      } else {
+           alert("A função de adicionar playlist não está disponível.");
+      }
+  });
+  card.appendChild(playlistBtn);
 
-    const img = document.createElement("img");
-    img.className = "music-card-img";
-    img.src = item.cover || "Src/Card-img/Undead.jpg";
-    img.onerror = function() { this.src = "Src/Card-img/Undead.jpg"; }; 
-    card.appendChild(img);
+  const img = document.createElement("img");
+  img.className = "music-card-img";
+  img.src = item.cover || "Src/Card-img/Undead.jpg";
+  img.onerror = function() { this.src = "Src/Card-img/Undead.jpg"; }; 
+  card.appendChild(img);
 
 
-    const info = document.createElement("div");
-    info.className = "music-card-info";
-    const title = document.createElement("h4");
-    title.textContent = item.title || "Unknown";
-    const artist = document.createElement("p");
-    artist.textContent = item.artist || "Unknown";
-    
-    const genre = document.createElement("small");
-    if (listType === "personalized" && currentTopView === 'explore') {
-       genre.textContent = `Plays: ${item._score || item.timesPlayed || 0}`;
-    } else {
-       genre.textContent = item.genre || "Music";
-    }
-    
-    info.appendChild(title);
-    info.appendChild(artist);
-    info.appendChild(genre);
-    card.appendChild(info);
-
-    const playBtn = document.createElement("button");
-    playBtn.className = "load-btn";
-    playBtn.textContent = "Play";
-    playBtn.style.display = "none";
-    
-    playBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      playSongFromCard(item, listType);
-    });
-
-    card.appendChild(playBtn);
-
-    card.addEventListener("click", () => {
-        if(player) playBtn.click();
-    });
-
-    return card;
+  const info = document.createElement("div");
+  info.className = "music-card-info";
+  const title = document.createElement("h4");
+  title.textContent = item.title || "Unknown";
+  const artist = document.createElement("p");
+  artist.textContent = item.artist || "Unknown";
+  
+  const genre = document.createElement("small");
+  if (listType === "personalized" && currentTopView === 'explore') {
+     genre.textContent = `Plays: ${item._score || item.timesPlayed || 0}`;
   }
+   else {
+     genre.textContent = item.genre || "Music";
+  }
+  
+  info.appendChild(title);
+  info.appendChild(artist);
+  info.appendChild(genre);
+  card.appendChild(info);
+
+  // NOTE: The separate .load-btn element is removed from the DOM creation here.
+  // We rely solely on the card click for playback on all devices now.
+  
+  card.addEventListener("click", () => {
+      // The card itself now handles the play action. 
+      // This is the desired behavior for mobile, and it will work for desktop too.
+      playSongFromCard(item, listType);
+  });
+
+  return card;
+}
 
   // --- 2. Data Getters ---
 
@@ -298,7 +299,6 @@ function playSongFromCard(song, listType) {
         searchResults.style.display = "block";
     });
 
-    // Close search when clicking outside
     document.addEventListener("click", (e) => {
         if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
             searchResults.style.display = "none";
@@ -331,6 +331,8 @@ function playSongFromCard(song, listType) {
       });
   });
 
+  
+
   // --- 6. Player Init ---
   if (playerContainer && typeof Player !== "undefined") {
     player = Player.init(playerContainer);
@@ -340,17 +342,14 @@ function playSongFromCard(song, listType) {
   const slideImg = document.getElementById("slide-image");
   const trendingInfo = document.querySelector(".trending .left .info");
   let slideIndex = 0;
-  let trendingSongs = []; // Armazena a lista aleatória atual
-
+  let trendingSongs = []; 
   function slideshowTick() {
-      // Regenera a lista aleatória quando o carrossel atinge o fim
       if (slideIndex === 0 || trendingSongs.length === 0) {
-          trendingSongs = getRandom5List(); // Agora a função existe neste escopo
+          trendingSongs = getRandom5List(); 
       }
 
       if (!trendingSongs.length || !slideImg || !trendingInfo) return;
 
-      // Move para o próximo índice dentro da lista trendingSongs
       slideIndex = (slideIndex + 1) % trendingSongs.length; 
       
       const song = trendingSongs[slideIndex];
@@ -370,6 +369,9 @@ function playSongFromCard(song, listType) {
               
               incrementUserPlayCount(song.id);
               addToRecents(song.id);
+              
+              // FIX: Re-render personalized lists after play count/recent history update (The F5 fix)
+              renderTopSection(); // <--- ADDED LINE
           }
       };
   }
@@ -377,50 +379,91 @@ function playSongFromCard(song, listType) {
   slideshowTick(); 
   setInterval(slideshowTick, 5000);
 
-  // --- 8. Profile & Logout Logic ---
+  // --- 8. Profile & Logout Logic (Consolidated for Mobile/Desktop) ---
   const settingsBtn = document.getElementById("settings-btn");
   const settingsDrop = document.getElementById("settings-dropdown");
   const logoutBtn = document.getElementById("logout-btn");
 
+  // New Mobile Profile Elements (requires Main.html changes below)
+  const mobileSettingsBtn = document.getElementById("settings-btn-mobile");
+  const mobileSettingsDrop = document.getElementById("settings-dropdown-mobile");
+  const mobileLogoutBtn = document.getElementById("logout-btn-mobile");
+
+  // Function to handle logout and clear local storage comprehensively
+  function handleLogout(e) {
+      e.preventDefault();
+      if(confirm("Log out? Your play history and local profile will be cleared.")) {
+          // Clear all relevant localStorage keys
+          localStorage.removeItem("nayuta_user");
+          localStorage.removeItem("nayuta_play_counts");
+          localStorage.removeItem("nayuta_recent_history");
+          window.location.reload(); 
+      }
+  }
+
+  // Desktop Profile Toggle Logic
   if (settingsBtn && settingsDrop) {
       settingsBtn.addEventListener("click", (e) => {
           e.stopPropagation();
+          // Close mobile dropdown if open
+          if(mobileSettingsDrop) mobileSettingsDrop.classList.remove("open");
           settingsDrop.classList.toggle("open");
       });
-      document.addEventListener("click", () => {
-          settingsDrop.classList.remove("open");
+  }
+
+  // Mobile Profile Toggle Logic
+  if (mobileSettingsBtn && mobileSettingsDrop) {
+      mobileSettingsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          // Close desktop dropdown if open
+          if(settingsDrop) settingsDrop.classList.remove("open");
+          mobileSettingsDrop.classList.toggle("open");
       });
   }
 
+  // Attach Logout Handler to both desktop and mobile buttons
   if (logoutBtn) {
-      logoutBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          if(confirm("Log out? Your play history and local profile will be cleared.")) {
-              localStorage.removeItem("nayuta_user");
-              localStorage.removeItem("nayuta_play_counts");
-              localStorage.removeItem("nayuta_recent_history");
-              window.location.reload(); 
-          }
-      });
+      logoutBtn.addEventListener("click", handleLogout);
   }
+  if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener("click", handleLogout);
+  }
+
+
+  // Close Dropdowns on outside click (Updated to close both)
+  document.addEventListener("click", () => {
+      if(settingsDrop) settingsDrop.classList.remove("open");
+      if(mobileSettingsDrop) mobileSettingsDrop.classList.remove("open");
+  });
+
 
   // --- 9. Onboarding (Login) Logic ---
-  (function initOnboarding() {
-    const onboardRoot = document.getElementById("onboard-root");
-    const existing = getStoredUserProfile();
-    
-    const updateProfileUI = (data) => {
-        document.getElementById("profile-name").textContent = data.name;
-        document.querySelectorAll(".profile-avatar").forEach(img => {
-            img.src = data.avatar || DEFAULT_AVATAR;
-            img.onerror = function() { this.src = DEFAULT_AVATAR; }; 
-        });
-    };
+(function initOnboarding() {
+  const onboardRoot = document.getElementById("onboard-root");
+  const existing = getStoredUserProfile();
+  
+  const updateProfileUI = (data) => {
+      // 1. Update Profile Name (Targets elements with the IDs on desktop and mobile)
+      document.querySelectorAll("#profile-name").forEach(el => {
+          if(el) el.textContent = data.name;
+      });
 
-    if (existing) {
-        updateProfileUI(existing);
-        return;
-    }
+      // 2. Update Profile Level (Targets elements with the IDs on desktop and mobile)
+      document.querySelectorAll("#profile-level").forEach(el => {
+          if(el) el.textContent = data.level || "Level 1";
+      });
+
+      // 3. Update Profile Avatar (Targets elements with the CLASS on desktop and mobile)
+      document.querySelectorAll(".profile-avatar").forEach(img => {
+          img.src = data.avatar || DEFAULT_AVATAR;
+          img.onerror = function() { this.src = DEFAULT_AVATAR; }; 
+      });
+  }; // End of updateProfileUI
+
+  if (existing) {
+      updateProfileUI(existing);
+      return;
+  }
 
     onboardRoot.setAttribute("aria-hidden", "false");
     onboardRoot.innerHTML = `
@@ -455,7 +498,7 @@ function playSongFromCard(song, listType) {
     });
 
     const saveAndClose = (name, avatar) => {
-        const data = { name: name || "User", avatar: avatar };
+        const data = { name: name || "User", avatar: avatar, level: "Level 1" }; // Ensuring level is set
         saveUserProfile(data);
         updateProfileUI(data);
         onboardRoot.innerHTML = ""; 
@@ -579,27 +622,39 @@ window.showAddToPlaylistModal = function(songId, songTitle) {
 };
 
 
-// Mobile Menu Toggle
-
+// Mobile Menu Toggle:
 const menuOpenBtn = document.getElementById("menu-open"); 
-const sidebarToggleBtn = document.getElementById("sidebar-toggle"); 
-const container = document.querySelector(".container");
+  const sidebarToggleBtn = document.getElementById("sidebar-toggle"); 
+  const container = document.querySelector(".container");
 
-function toggleSidebar() {
-    container.classList.toggle("sidebar-active");
-}
+  function toggleSidebar(e) {
+      if(e) e.stopPropagation();
+      container.classList.toggle("sidebar-active");
+  }
 
-if(menuOpenBtn) menuOpenBtn.addEventListener("click", toggleSidebar);
-if(sidebarToggleBtn) sidebarToggleBtn.addEventListener("click", toggleSidebar);
+  function closeSidebar() {
+      container.classList.remove("sidebar-active");
+  }
 
+  if(menuOpenBtn) menuOpenBtn.addEventListener("click", toggleSidebar);
+  if(sidebarToggleBtn) sidebarToggleBtn.addEventListener("click", toggleSidebar);
 
-container.addEventListener("click", (e) => {
-    if (container.classList.contains("sidebar-active") && 
-        !e.target.closest(".sidebar") && 
-        !e.target.closest(".menu-btn")) {
-        container.classList.remove("sidebar-active");
-    }
-});
+  document.addEventListener("click", (e) => {
+      const sidebar = document.querySelector(".sidebar");
+      const isClickInsideSidebar = sidebar.contains(e.target);
+      const isClickOnMenuBtn = menuOpenBtn && menuOpenBtn.contains(e.target);
+      
+      if (container.classList.contains("sidebar-active") && !isClickInsideSidebar && !isClickOnMenuBtn) {
+          closeSidebar();
+      }
+  });
 
-
-
+  const allSidebarLinks = document.querySelectorAll(".sidebar a, .sidebar .playlist-item, .mobile-profile-container button");
+  allSidebarLinks.forEach(link => {
+      link.addEventListener("click", () => {
+          // Check if the click is on an interactive profile element, if so, don't close the sidebar immediately (to allow the dropdown to open)
+          if (window.innerWidth <= 992 && !link.closest(".profile-actions")) {
+              closeSidebar();
+          }
+      });
+  });

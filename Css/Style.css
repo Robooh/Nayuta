@@ -12,8 +12,6 @@
 html,
 body {
   height: 100vh;
-  margin: 0;
-  padding: 0;
 }
 
 *,
@@ -76,6 +74,10 @@ body {
 }
 
 /* Sidebar : */
+
+.mobile-profile-container {
+    display: none;
+}
 
 .container .sidebar {
   height: 100vh;
@@ -234,9 +236,8 @@ body {
 }
 
 .container main header .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+  display:flex; 
+  align-items:center;
 }
 
 .container main header .nav-links a {
@@ -727,6 +728,8 @@ body {
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
+  margin-right: 15px;
+  font-size: 24px;
 }
 
 .menu-btn i {

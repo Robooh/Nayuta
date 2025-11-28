@@ -3,13 +3,4 @@
 ## Overview
 Implement autocomplete search in Script.js for the #search-input. On typing, show a dropdown list of closest matching songs (by title/artist) in #search-results. Clicking a result plays the song using the player.
 
-## Steps to Complete
-- [ ] Read current Script.js to locate the initSearch() placeholder.
-- [ ] Implement initSearch() function:
-  - Add event listener to #search-input for 'input' event.
-  - On input: get query, call DataService.search(query), populate #search-results with results.
-  - Each result: <div> with title and artist, click handler to play song (find index in full list, load and play).
-  - Hide results on blur or empty query.
-- [ ] Check Css/Style.css for .search-results styling; add if missing (position absolute, etc.).
-- [ ] Test: Type in search, see dropdown, click to play song.
-- [ ] Update this TODO.md as steps are completed.
+💾 Recap: How to Use Local Storage (The Modular Way)In the code separation we just performed, we've isolated the Local Storage access into localStorageService.js. This is the best practice!Reading: To get data, you call the appropriate function from your service file (e.g., getPlaylists() or getUserPlayCounts()). Inside that function, it uses localStorage.getItem('KEY') and then converts the resulting JSON string back into a JavaScript object/array using JSON.parse().Writing: To save data, you call a saving function (e.g., savePlaylists()). Inside that function, you first convert your JavaScript object/array into a string using JSON.stringify(), and then save it using localStorage.setItem('KEY', stringData).ActionJavaScript MethodPurposeStore DatalocalStorage.setItem(key, value)Stores a string value under a string key.Retrieve DatalocalStorage.getItem(key)Returns the string value for the key.Use Complex DataJSON.parse() / JSON.stringify()Used to convert objects/arrays to strings and back for storage.By using the functions in localStorageService.js, the rest of your main.js script only has to worry about what data it needs, not how it's stored.
