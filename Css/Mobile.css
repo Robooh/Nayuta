@@ -68,13 +68,96 @@
   top: auto !important;      
   left: 0;
   right: 0;
-  width: 100%;
+  width: auto;
   height: auto;
   background: transparent;
   z-index: 150;
   pointer-events: none;
   display: block;
+  padding: 0 !important;
 }
+
+
+.container .right-section .player {
+    pointer-events: auto; 
+    flex-direction: row; 
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    background: rgba(24, 24, 29, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .container .right-section .profile {
+    display:  none;
+  }
+
+
+  .player-top {
+    width: auto;
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .song-info {
+    gap: 10px;
+  }
+
+  .song-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+  }
+
+  .song-details h4 {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  .song-details p {
+    font-size: 12px;
+  }
+
+
+  .player-progress {
+    display: none; 
+  }
+
+  /* Controls */
+  .player-footer {
+    width: auto;
+  }
+
+  .player-controls {
+    gap: 8px;
+  }
+
+
+  #loop-btn  { 
+    display: none !important; 
+  }
+  
+
+  #play-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 24px; 
+  }
+  
+  #next-btn #left-btn #volume-btn {
+    display: flex !important;
+    width: 32px;
+    height: 32px;
+    font-size: 24px;
+    
+  }
 
   .menu-btn {
     display: flex; 
@@ -143,23 +226,7 @@
   }
 
 
-  /* --- Right Section Hide & Mobile Profile Show --- */
-  .container .right-section {
-    display: none; /* Hide desktop right section on mobile */
-  }
 
-  .mobile-profile-container {
-      display: flex; /* Show the mobile profile container */
-      padding: 10px;
-      border-top: 1px solid var(--border-color);
-      margin-top: auto; /* Push to the bottom of the sidebar */
-  }
-
-  .mobile-profile-container .profile {
-      width: 100%;
-      padding: 0;
-      border: none;
-  }
   
   /* --- Slideshow Info Style Improvement --- */
   .slideshow-info {
