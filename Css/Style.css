@@ -412,6 +412,7 @@ body {
     justify-content: space-between;
     position: relative;
     overflow: hidden;
+    border: 1px solid;
 }
 
 .music-card:hover {
