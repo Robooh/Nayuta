@@ -345,35 +345,48 @@ function createCard(item, index, listType = "main") {
   let trendingSongs = []; 
   function slideshowTick() {
       if (slideIndex === 0 || trendingSongs.length === 0) {
-          trendingSongs = getRandom5List(); 
+          trendingSongs = getRandom5List();
       }
 
       if (!trendingSongs.length || !slideImg || !trendingInfo) return;
 
-      slideIndex = (slideIndex + 1) % trendingSongs.length; 
-      
+      slideIndex = (slideIndex + 1) % trendingSongs.length;
+
       const song = trendingSongs[slideIndex];
 
       slideImg.src = song.cover || "Src/Card-img/Undead.jpg";
       slideImg.onerror = function() { this.src = "Src/Card-img/Undead.jpg"; };
       trendingInfo.querySelector("h2").textContent = song.title;
       trendingInfo.querySelector("h3").textContent = song.artist;
-      trendingInfo.querySelector("h4").textContent = song.genre; 
-      trendingInfo.querySelector("h6").textContent = "Now Trending"; 
-      
+      trendingInfo.querySelector("h4").textContent = song.genre;
+      trendingInfo.querySelector("h6").textContent = "Now Trending";
+
       const btn = trendingInfo.querySelector("button");
       btn.onclick = () => {
           if(player) {
               player.loadList(trendingSongs);
               player.playIndex(slideIndex);
-              
+
               incrementUserPlayCount(song.id);
               addToRecents(song.id);
-              
+
               // FIX: Re-render personalized lists after play count/recent history update (The F5 fix)
               renderTopSection(); // <--- ADDED LINE
           }
       };
+
+      // Add event listener for the add-to-playlist button in trending
+      const addToPlaylistBtn = trendingInfo.querySelector(".add-to-playlist-btn");
+      if (addToPlaylistBtn) {
+          addToPlaylistBtn.onclick = (e) => {
+              e.stopPropagation();
+              if (typeof window.showAddToPlaylistModal === 'function') {
+                  window.showAddToPlaylistModal(song.id, song.title);
+              } else {
+                  alert("A função de adicionar playlist não está disponível.");
+              }
+          };
+      }
   }
   
   slideshowTick(); 

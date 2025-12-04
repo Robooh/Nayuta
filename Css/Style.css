@@ -14,6 +14,10 @@ body {
   height: 100vh;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 *,
 *::before,
 *::after {
@@ -236,8 +240,9 @@ body {
 }
 
 .container main header .nav-links {
-  display:flex; 
+  display:flex;
   align-items:center;
+  gap: 10px;
 }
 
 .container main header .nav-links a {
@@ -249,9 +254,10 @@ body {
 
 .container main header .search {
   display: flex;
-  align-items: center;
+  align-items:center;
+  justify-content: center;
   gap: 6px;
-  width: 70%;
+  width: 80%;
   background-color: #535353b0;
   border: 1px solid #464748;
   padding: 10px;
@@ -387,6 +393,13 @@ body {
     background-color: var(--main-color);
     color: #000;
     transform: scale(1.1);
+}
+
+.trending .add-to-playlist-btn {
+    position: static;
+    width: 32px;
+    height: 32px;
+    font-size: 10px;
 }
 
 /* Main list (cards) styles */
