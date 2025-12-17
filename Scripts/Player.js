@@ -119,23 +119,29 @@
 
   function playIndex(index) {
     if (index < 0 || index >= currentPlaylist.length) {
+      console.log(`[playIndex] Invalid index: ${index}, playlist length: ${currentPlaylist.length}`);
       currentIndex = -1;
       return;
     }
     currentIndex = index;
+    console.log(`[playIndex] Loading track at index ${index}:`, currentPlaylist[currentIndex]);
     loadTrack(currentPlaylist[currentIndex]);
 
+    console.log(`[playIndex] Attempting to play audio...`);
     var playPromise = audio.play();
 
     if (playPromise !== undefined) {
       playPromise
         .then((_) => {
+          console.log(`[playIndex] Audio play() succeeded`);
           updatePlayIcon();
         })
         .catch((error) => {
-          console.warn("Autoplay prevented. Waiting for user interaction.");
+          console.warn("[playIndex] Autoplay prevented or error:", error);
           updatePlayIcon();
         });
+    } else {
+      console.log(`[playIndex] audio.play() returned undefined`);
     }
   }
 
@@ -158,17 +164,21 @@
     if (currentPlaylist.length === 0) return;
 
     let nextIndex = currentIndex + 1;
+    console.log(`[playNext] currentIndex=${currentIndex}, nextIndex=${nextIndex}, playlistLength=${currentPlaylist.length}, loopActive=${isPlaylistLoopActive}`);
 
     if (nextIndex >= currentPlaylist.length) {
       if (isPlaylistLoopActive) {
+        console.log("[playNext] Reached end of playlist, looping back to start");
         nextIndex = 0;
       } else {
+        console.log("[playNext] Reached end of playlist, stopping");
         audio.pause();
         currentIndex = -1;
         updatePlayIcon();
         return;
       }
     }
+    console.log(`[playNext] Playing index ${nextIndex}`);
     playIndex(nextIndex);
   }
 
@@ -235,6 +245,9 @@
     if (prevBtn) prevBtn.addEventListener("click", playPrev);
     if (nextBtn) nextBtn.addEventListener("click", playNext);
 
+    const loopBtn = container.querySelector("#loop-btn");
+    if (loopBtn) loopBtn.addEventListener("click", playerInterface.toggleLoop);
+
     if (volumeBtn)
       volumeBtn.addEventListener("click", toggleVolumeSliderVisibility);
 
@@ -256,7 +269,10 @@
 
     audio.addEventListener("play", updatePlayIcon);
     audio.addEventListener("pause", updatePlayIcon);
-    audio.addEventListener("ended", playNext);
+    audio.addEventListener("ended", function() {
+      console.log(`[audio.ended] Song ended, currentIndex=${currentIndex}, isPlaylistLoopActive=${isPlaylistLoopActive}`);
+      playNext();
+    });
     audio.addEventListener("timeupdate", updateTime);
     audio.addEventListener("loadedmetadata", updateTime);
     audio.addEventListener("volumechange", updateVolumeIcon);
@@ -280,6 +296,7 @@
     playPrev: playPrev,
     toggleLoop: function () {
       isPlaylistLoopActive = !isPlaylistLoopActive;
+      console.log(`[toggleLoop] Loop state changed to: ${isPlaylistLoopActive}`);
       const loopBtn = document.getElementById("loop-btn");
       if (loopBtn) {
         loopBtn.classList.toggle("active", isPlaylistLoopActive);

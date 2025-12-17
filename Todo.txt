@@ -3,6 +3,11 @@ For next:
 Pc:(update here then)
 Try to find a fix so the user dont have to F5 for every update on the localStorage. 
 
+Fix add button icon on the sliderShow
+
+fix mobile version until Trip.
+
+
 
 Mobile:
 On mobile Remove hover effect insted: improve the button size and always display the full size of the button play,improve Musiclist card size on mobile
