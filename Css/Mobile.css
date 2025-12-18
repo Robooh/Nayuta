@@ -45,6 +45,71 @@
   display: block !important;
 }
 
+/* Mobile sidebar profile improvements */
+.mobile-profile-container .profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.mobile-profile-container .profile .user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-profile-container .profile .user .left img.profile-avatar,
+.container .sidebar .profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.mobile-profile-container .profile .info #profile-name,
+.mobile-profile-container .profile .info h5 {
+  font-size: 14px;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.mobile-profile-container .profile .profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* mobile settings dropdown positioning */
+#settings-dropdown-mobile,
+.settings-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 56px;
+  background: rgba(24,24,29,0.98);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 8px 6px;
+  min-width: 160px;
+  z-index: 250;
+}
+
+#settings-dropdown-mobile.open,
+.settings-dropdown.open {
+  display: block;
+}
+
+#settings-dropdown-mobile ul { margin: 0; padding: 0; list-style: none; }
+#settings-dropdown-mobile ul li { padding: 6px 8px; }
+#settings-dropdown-mobile ul li a { color: var(--text-color); text-decoration: none; }
+
+/* Ensure sidebar can scroll on small screens */
+.container .sidebar { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
 .container.sidebar-active .sidebar {
   left: 0 !important; 
 }
@@ -185,6 +250,7 @@
 
   .container main header .search {
     width: 100%; 
+    margin-bottom: 12px; /* espaço entre busca e Top5 */
   }
 
   .container main header .nav-links a {
@@ -288,6 +354,105 @@
     /* The scrollbar for this section is usually hidden by the global scrollbar-width: none rule */
     max-height: none; /* Override desktop max-height */
     scroll-snap-type: x mandatory; /* enable snap for nicer swipe UX */
+  }
+
+  /* Top 5 container style: background and spacing to separate from header */
+  #music-items {
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+  }
+
+  /* Card visual style for better main/content appearance on mobile */
+  .personalized-songs-grid .music-card,
+  .main-list-grid .music-card {
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 120px; /* keep compact while allowing horizontal scroll */
+  }
+
+  /* Make the main song list use a two-column grid (reduces vertical length) */
+  .main-list .main-list-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    overflow: visible;
+  }
+
+  .main-list .main-list-grid .music-card {
+    min-width: unset;
+    max-width: none;
+    width: 100%;
+  }
+
+  /* Avatar-style image for main-list cards to save vertical space */
+  .main-list .main-list-grid .music-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    min-height: 72px; /* keep a consistent card height */
+  }
+
+  .main-list .main-list-grid .music-card img.music-card-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 64px;
+  }
+
+  .main-list .main-list-grid .music-card .music-card-info {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .main-list .main-list-grid .music-card .music-card-info h4 {
+    font-size: 15px;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .main-list .main-list-grid .music-card .music-card-info p {
+    font-size: 12px;
+    margin: 0;
+    color: var(--second-color);
+  }
+
+  /* Smaller add-to-playlist icon to fit compact card layout */
+  .personalized-songs-grid .music-card .add-to-playlist-btn,
+  .main-list .music-card .add-to-playlist-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    border-radius: 6px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+  }
+
+  /* Also apply same small add button to Top5 / lists-grid cards */
+  .lists-grid .music-card .add-to-playlist-btn,
+  #music-items .music-card .add-to-playlist-btn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 14px !important;
   }
 
   .music-card {
