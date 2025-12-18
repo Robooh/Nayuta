@@ -338,6 +338,25 @@ function createCard(item, index, listType = "main") {
     player = Player.init(playerContainer);
   }
 
+    // Mobile: dispatch a custom 'mobilePlayer' event when the compact player area is tapped
+    (function setupMobilePlayerTap() {
+        function addHandler() {
+            const pl = document.querySelector('.player');
+            if (!pl) return;
+            if (pl._mobileHandlerAdded) return;
+            pl.addEventListener('click', function (e) {
+                if (window.innerWidth > 992) return;
+                // ignore clicks on interactive controls
+                if (e.target.closest('button, .player-controls, input, a, i')) return;
+                e.stopPropagation();
+                document.dispatchEvent(new CustomEvent('mobilePlayer', { detail: { source: 'player' } }));
+            });
+            pl._mobileHandlerAdded = true;
+        }
+        addHandler();
+        window.addEventListener('resize', addHandler);
+    })();
+
   // --- 7. Slideshow Logic ---
   const slideImg = document.getElementById("slide-image");
   const trendingInfo = document.querySelector(".trending .left .info");

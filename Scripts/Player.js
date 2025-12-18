@@ -115,6 +115,12 @@
     }
 
     if (timeTotalEl) timeTotalEl.textContent = "0:00";
+
+    // Dispatch custom event for mobile player and other listeners to sync
+    const trackLoadedEvent = new CustomEvent('trackLoaded', {
+      detail: { track: track, audio: audio }
+    });
+    document.dispatchEvent(trackLoadedEvent);
   }
 
   function playIndex(index) {
@@ -215,6 +221,10 @@
     audio.id = "audio-element";
     audio.preload = "metadata";
     audio.volume = 0.7;
+    // Add audio element to DOM for external sync (mobile player, etc.)
+    if (!document.getElementById("audio-element")) {
+      document.body.appendChild(audio);
+    }
 
     volumeSlider = container.querySelector("#volume-slider");
     const controlsEl = container.querySelector(".player-controls");
