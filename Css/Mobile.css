@@ -1,11 +1,12 @@
-/* --- Mobile & Tablet Responsive Styles --- */
-
+/* =============================================
+   MOBILE & TABLET RESPONSIVE — NAYUTA REDESIGN
+   ============================================= */
 
 @media screen and (max-width: 992px) {
-  
 
+  /* Layout */
   .container {
-    display: block; 
+    display: block;
     height: auto;
     position: relative;
     overflow-x: hidden;
@@ -13,256 +14,148 @@
 
   .container main {
     width: 100%;
-    padding: 20px 16px 120px 16px;
+    padding: 16px 16px 110px 16px;
     height: auto;
     overflow-y: visible;
   }
 
-
-  
-
-/* --- Sidebar & Overlay Fixes --- */
-.container .sidebar {
-  position: fixed;
-  left: -100%;
-  top: 0;
-  width: 280px;
-  height: 100vh;
-  z-index: 200; 
-  background-color: #18181d;
-  transition: left 0.3s ease-in-out;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-}
-
-.container .sidebar .menu-mobile {
-  display: block;
-  padding: 20px 0;
-  border-top: 1px solid var(--second-color);
-  margin-top: 20px;
-}
-
-.mobile-profile-container {
-  display: block !important;
-}
-
-/* Mobile sidebar profile improvements */
-.mobile-profile-container .profile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  gap: 10px;
-}
-
-.mobile-profile-container .profile .user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.mobile-profile-container .profile .user .left img.profile-avatar,
-.container .sidebar .profile-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.04);
-}
-
-.mobile-profile-container .profile .info #profile-name,
-.mobile-profile-container .profile .info h5 {
-  font-size: 14px;
-  margin: 0;
-  color: var(--text-color);
-}
-
-.mobile-profile-container .profile .profile-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-
-/* mobile settings dropdown positioning */
-#settings-dropdown-mobile,
-.settings-dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 56px;
-  background: rgba(24,24,29,0.98);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 8px;
-  padding: 8px 6px;
-  min-width: 160px;
-  z-index: 250;
-}
-
-#settings-dropdown-mobile.open,
-.settings-dropdown.open {
-  display: block;
-}
-
-#settings-dropdown-mobile ul { margin: 0; padding: 0; list-style: none; }
-#settings-dropdown-mobile ul li { padding: 6px 8px; }
-#settings-dropdown-mobile ul li a { color: var(--text-color); text-decoration: none; }
-
-/* Ensure sidebar can scroll on small screens */
-.container .sidebar { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
-.container.sidebar-active .sidebar {
-  left: 0 !important; 
-}
-
-
-.container.sidebar-active::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 90; 
-  backdrop-filter: blur(2px);
-}
-
-.slideshow { width: 100%; }
-  .container main .trending {
-    display: none;
+  /* ---- Sidebar & Overlay ---- */
+  .container .sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 270px;
+    height: 100vh;
+    z-index: 200;
+    background-color: var(--surface-color);
+    border-right: 1px solid var(--border-color);
+    transition: left 0.3s ease-in-out;
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.6);
   }
 
-.slideshow img#slide-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16/9; 
-    max-height: 220px;  
-    object-fit: cover;
-}
+  .container .sidebar .menu-mobile {
+    display: block;
+    padding: 16px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 16px;
+  }
 
-/* --- Fixed Player Bar Positioning --- */
-.container .right-section {
-  position: fixed !important; 
-  bottom: 0 !important;         
-  top: auto !important;      
-  left: 0;
-  right: 0;
-  width: auto;
-  height: auto;
-  background: transparent;
-  z-index: 150;
-  pointer-events: none;
-  display: block;
-  padding: 0 !important;
-}
+  .mobile-profile-container {
+    display: block !important;
+  }
 
-
-.container .right-section .player {
-    pointer-events: auto; 
-    flex-direction: row; 
+  .mobile-profile-container .profile {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 80px;
-    background: rgba(24, 24, 29, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 0;
-    width: 100%;
-    padding: 0 16px;
-  }
-
-  .container .right-section .profile {
-    display:  none;
-  }
-
-
-  .player-top {
-    width: auto;
-    flex: 1;
-    margin-bottom: 0;
-  }
-
-  .song-info {
+    padding: 10px 12px;
     gap: 10px;
   }
 
-  .song-info img {
-    width: 50px;
-    height: 50px;
-    border-radius: 4px;
+  .mobile-profile-container .profile .user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
-  .song-details h4 {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-  }
-
-  .song-details p {
-    font-size: 12px;
-  }
-
-
-  .player-progress {
-    display: none; 
-  }
-
-  /* Controls */
-  .player-footer {
-    width: auto;
-  }
-
-  .player-controls {
-    gap: 8px;
-  }
-
-
-  #loop-btn  { 
-    display: none !important; 
-  }
-  
-
-  #play-btn {
+  .mobile-profile-container .profile .user .left img.profile-avatar,
+  .container .sidebar .profile-avatar {
     width: 40px;
     height: 40px;
-    font-size: 24px; 
-  }
-  
-  #next-btn #left-btn #volume-btn {
-    display: flex !important;
-    width: 32px;
-    height: 32px;
-    font-size: 24px;
-    
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--border-active);
   }
 
-  .menu-btn {
-    display: flex; 
-    font-size: 24px;
-    color: #fff;
+  .mobile-profile-container .profile .info #profile-name,
+  .mobile-profile-container .profile .info h5 {
+    font-size: 14px;
+    margin: 0;
+    color: var(--text-color);
+    font-weight: 600;
   }
 
-  .menu-btn i {
-  font-size: 20px;
-}
+  .mobile-profile-container .profile .profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+
+  /* Mobile settings dropdown */
+  #settings-dropdown-mobile,
+  .settings-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 52px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    min-width: 150px;
+    z-index: 250;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  }
+
+  #settings-dropdown-mobile.open,
+  .settings-dropdown.open {
+    display: block;
+  }
+
+  #settings-dropdown-mobile ul { margin: 0; padding: 0; list-style: none; }
+  #settings-dropdown-mobile ul li { padding: 6px 10px; }
+  #settings-dropdown-mobile ul li a {
+    color: var(--second-color);
+    text-decoration: none;
+    font-size: 13px;
+  }
+
+  .container .sidebar { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+  .container.sidebar-active .sidebar {
+    left: 0 !important;
+  }
+
+  .container.sidebar-active::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 90;
+    backdrop-filter: blur(3px);
+  }
+
+  /* ---- Header ---- */
+  .container main header {
+    flex-wrap: wrap;
+    padding: 14px 0 10px 0;
+    gap: 10px;
+    background: linear-gradient(180deg, var(--background-color) 85%, transparent 100%);
+  }
 
   .container main header .search {
-    width: 100%; 
-    margin-bottom: 12px; /* espaço entre busca e Top5 */
+    width: 100%;
+    order: 2;
+    max-width: 100%;
   }
 
   .container main header .nav-links a {
     display: none;
   }
 
- 
+  /* ---- Trending / Slideshow ---- */
+  .slideshow { width: 100%; }
+
   .container main .trending {
-    flex-direction: column-reverse; 
+    flex-direction: column-reverse;
     align-items: flex-start;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 20px 20px;
   }
 
   .container main .trending .left .info {
@@ -270,119 +163,161 @@
     width: 100%;
   }
 
-  .slideshow img#slide-image {
-    width: 100%; /* Full width image */
-    height: 250px; /* Fixed height */
-    object-fit: cover;
-  }
-
   .container main .trending .left .info h2 {
-    font-size: 28px;
+    font-size: 30px;
   }
 
+  .slideshow img#slide-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
 
-  .personalized-songs-grid, 
-  .main-list-grid {
-    grid-template-columns: repeat(2, 1fr) ;
+  /* ---- Right Section → Fixed Player Bar ---- */
+  .container .right-section {
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    background: transparent;
+    z-index: 150;
+    pointer-events: none;
+    display: block;
+    padding: 0 !important;
+    border: none;
+  }
+
+  .container .right-section .player {
+    pointer-events: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    background: rgba(17, 17, 20, 0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0;
+    width: 100%;
+    padding: 0 16px;
     gap: 12px;
   }
 
-
-  .music-card-img {
-    height: 120px; 
+  .container .right-section .profile {
+    display: none;
   }
 
-  .add-to-playlist-btn {
-    width: 36px;
-    height: 36px;
+  .player-top {
+    width: auto;
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .song-info { gap: 10px; }
+
+  .song-info img {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+  }
+
+  .song-details h4 {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+  }
+
+  .song-details p { font-size: 11px; }
+
+  .player-progress { display: none; }
+
+  .player-footer { width: auto; }
+  .player-controls { gap: 6px; }
+
+  #loop-btn { display: none !important; }
+
+  #play-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  #play-btn i { font-size: 20px; }
+
+  #next-btn, #prev-btn, #volume-btn {
+    display: flex !important;
+    width: 34px;
+    height: 34px;
+  }
+
+  /* ---- Menu Button ---- */
+  .menu-btn {
+    display: flex;
     font-size: 20px;
+    color: var(--text-color);
+    order: 1;
   }
 
-  .load-btn {
-    display: inline-block ;
-    width: 100%;
-    margin-top: 5px;
-    padding: 6px;
-  }
-
-
-
-  
-  /* --- Slideshow Info Style Improvement --- */
-  .slideshow-info {
-    text-align: center;
-    padding: 10px;
-  }
-
-  .slideshow-info h4 {
-    font-size: 1.2em;
-    color: var(--main-color);
-    text-align: center;
-  }
-  
-  .slideshow-info p {
-    font-size: 0.9em;
-    color: var(--second-color);
-    text-align: center;
-  }
-
-  /* --- Remove Hover Effects on Interactive Elements --- */
-  /* Remove hover effects on sidebar menu and playlist items */
-  .container .sidebar .menu ul li:hover {
-    background-color: transparent; 
-    border-color: rgba(255, 255, 255, 0.1); 
-  }
-
-  .container .sidebar .menu ul li:hover a,
-  .container .sidebar .menu ul li:hover i,
-  .playlist-item:hover {
-    color: var(--text-color); 
-    background-color: transparent;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  /* --- Music List Card Size & Carousel Effect (Horizontal Scroll) --- */
-  
+  /* ---- Personalized Songs Grid ---- */
   .personalized-songs-grid,
-  .lists-grid .items { /* Apply to Top 5/Recent and Main Music List (Fix the size) */
-    display: flex; 
-    flex-wrap: nowrap; /* Forces content onto a single line */
-    overflow-x: auto; /* Enable horizontal scrolling (carousel/row effect) */
+  .lists-grid .items {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 5px; 
-    gap: 15px; 
-    /* The scrollbar for this section is usually hidden by the global scrollbar-width: none rule */
-    max-height: none; /* Override desktop max-height */
-    scroll-snap-type: x mandatory; /* enable snap for nicer swipe UX */
+    padding-bottom: 6px;
+    gap: 12px;
+    max-height: none;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
   }
 
-  /* Top 5 container style: background and spacing to separate from header */
+  .personalized-songs-grid::-webkit-scrollbar { display: none; }
+
   #music-items {
     margin-top: 8px;
     padding: 10px;
     background: rgba(255,255,255,0.02);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
   }
 
-  /* Card visual style for better main/content appearance on mobile */
+  .music-card {
+    min-width: 140px;
+    max-width: 140px;
+    height: auto;
+    flex-shrink: 0;
+    transition: none;
+    scroll-snap-align: start;
+  }
+
+  .music-card:hover {
+    transform: none;
+    border-color: var(--border-color);
+  }
+
   .personalized-songs-grid .music-card,
   .main-list-grid .music-card {
-    background: rgba(255,255,255,0.02);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     padding: 8px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 120px; /* keep compact while allowing horizontal scroll */
   }
 
-  /* Make the main song list use a two-column grid (reduces vertical length) */
+  .music-card-img { height: 110px; }
+
+  /* ---- Main List — 2-column grid on mobile ---- */
   .main-list .main-list-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
     overflow: visible;
   }
 
@@ -390,174 +325,133 @@
     min-width: unset;
     max-width: none;
     width: 100%;
-  }
-
-  /* Avatar-style image for main-list cards to save vertical space */
-  .main-list .main-list-grid .music-card {
-    display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 8px;
-    min-height: 72px; /* keep a consistent card height */
+    min-height: 68px;
   }
 
   .main-list .main-list-grid .music-card img.music-card-img {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     object-fit: cover;
-    flex: 0 0 64px;
+    flex: 0 0 56px;
+    margin-bottom: 0;
   }
 
   .main-list .main-list-grid .music-card .music-card-info {
     text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     align-items: flex-start;
   }
 
   .main-list .main-list-grid .music-card .music-card-info h4 {
-    font-size: 15px;
+    font-size: 13px;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .main-list .main-list-grid .music-card .music-card-info p {
-    font-size: 12px;
+    font-size: 11px;
     margin: 0;
     color: var(--second-color);
   }
 
-  /* Smaller add-to-playlist icon to fit compact card layout */
+  /* ---- Add-to-playlist btn — compact ---- */
   .personalized-songs-grid .music-card .add-to-playlist-btn,
-  .main-list .music-card .add-to-playlist-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-    border-radius: 6px;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.9;
-  }
-
-  /* Also apply same small add button to Top5 / lists-grid cards */
+  .main-list .music-card .add-to-playlist-btn,
   .lists-grid .music-card .add-to-playlist-btn,
   #music-items .music-card .add-to-playlist-btn {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 14px !important;
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 10px !important;
   }
 
-  .music-card {
-    min-width: 150px; /* Improved card size and fixed width */
-    max-width: 150px; 
-    height: auto;
-    flex-shrink: 0; /* Prevents cards from shrinking */
-    transition: none;
-    scroll-snap-align: start; /* align cards to snap points */
-  }
-
-  .music-card:hover {
-    background-color: transparent; 
-    border-color: rgba(255, 255, 255, 0.04); 
-  }
-
-  /* --- Card Play Button (Always Display & Improve Size) --- */
+  /* Play button on card — always visible on mobile */
   .music-card .load-btn {
-    display: flex !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px; 
-    height: 40px;
+    transform: translate(-50%, -50%) !important;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background-color: var(--main-color);
-    color: var(--background-color);
+    color: #1a1020;
     border: none;
+    display: flex !important;
     align-items: center;
     justify-content: center;
-    opacity: 0.9;
-    display: none !important;
-  }
-  
-  .music-card .load-btn i {
-    color: var(--background-color);
-    font-size: 20px;
-  }
-  
-  /* Keep add-to-playlist button small and visible for function */
-  .music-card .add-to-playlist-btn {
-      display: flex !important;
-      top: unset;
-      bottom: 5px;
-      right: 5px;
-      left: unset;
-      transform: none;
-      width: 30px;
-      height: 30px;
-      opacity: 0.7;
-      z-index: 10;
+    font-size: 0;
+    padding: 0;
   }
 
-  #loop-btn  { 
-    display: none !important; 
-  }
-  
+  .music-card .load-btn i { font-size: 16px; color: #1a1020; }
 
-  #play-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 24px; 
-  }
-  
-  #next-btn #left-btn #volume-btn {
-    display: flex !important;
-    width: 32px;
-    height: 32px;
-    font-size: 24px;
-    
+  /* ---- Slideshow Info ---- */
+  .slideshow-info { text-align: center; padding: 10px 0 0 0; }
+  .slideshow-info h4 { font-size: 1em; color: var(--main-color); }
+  .slideshow-info p { font-size: 0.85em; color: var(--second-color); }
+
+  /* ---- Remove hover effects on interactive elements ---- */
+  .container .sidebar .menu ul li:hover {
+    background-color: transparent;
+    border-color: transparent;
   }
 
-
-  .snake-game-container {
-    display: none; 
+  .container .sidebar .menu ul li:hover a,
+  .container .sidebar .menu ul li:hover i,
+  .playlist-item:hover {
+    color: var(--text-color);
+    background-color: transparent;
+    border-color: var(--border-color);
   }
-  
 
+  /* ---- Snake game hidden on mobile ---- */
+  .snake-game-container { display: none; }
+
+  /* ---- Footer ---- */
   .footer-content {
-    /* keep links and contact on one line (wrap if needed) */
-    flex-direction: row;
-    gap: 20px;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .site-footer {
+    padding: 24px 16px 16px 16px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 }
 
-/* Extra Small Screens (Phones < 480px) */
+/* ---- Extra Small Screens < 480px ---- */
 @media screen and (max-width: 480px) {
-  .personalized-songs-grid, 
-  .main-list-grid {
-    grid-template-columns: 1fr !important; /* 1 item per row */
+  .main-list .main-list-grid {
+    grid-template-columns: 1fr !important;
   }
 
   .container main .trending .left .info h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
-  
+
   .slideshow img#slide-image {
-    height: 200px;
+    max-height: 190px;
+  }
+
+  .container .right-section .player {
+    height: 64px;
+    padding: 0 12px;
   }
 }
 
-/* Mobile Player overlay (detailed) styles */
+/* ---- Mobile Player Overlay (detailed) ---- */
 .mobile-player-overlay {
   position: fixed;
   inset: 0;
@@ -567,32 +461,132 @@
   z-index: 400;
   pointer-events: none;
 }
+
 .mobile-player-overlay .mobile-player-card {
   width: 100%;
   max-width: 720px;
-  background: linear-gradient(180deg, rgba(18,18,20,0.98), rgba(10,10,12,0.98));
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  box-shadow: 0 -12px 40px rgba(0,0,0,0.6);
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-color));
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.7);
   transform: translateY(100%);
   transition: transform 300ms ease;
   pointer-events: auto;
 }
 
 .mobile-player-overlay.open .mobile-player-card { transform: translateY(0); }
-.mp-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-.mp-header .mp-title { color: var(--text-color); font-weight:700; }
-.mp-close, .mp-more { background:transparent; border:none; color:var(--text-color); font-size:18px; }
-.mp-main { padding: 16px; display:flex; flex-direction:column; gap:12px; align-items:center; }
-.mp-art img { width: 240px; height:240px; object-fit:cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); }
-.mp-info { text-align:center; }
-.mp-info h3 { margin:0; color:var(--text-color); font-size:18px; }
-.mp-info p { margin:0; color:var(--second-color); font-size:13px; }
-.mp-progress { width:100%; display:flex; align-items:center; gap:8px; }
-.mp-time { color:var(--second-color); font-size:12px; width:44px; text-align:center; }
-.mp-bar { flex:1; height:8px; background: rgba(255,255,255,0.04); border-radius:6px; position:relative; cursor:pointer; }
-.mp-bar-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg, var(--main-color), var(--second-color)); border-radius:6px; }
-.mp-controls { display:flex; align-items:center; gap:12px; justify-content:center; padding-bottom:18px; }
-.mp-btn { background:transparent; border:none; color:var(--text-color); font-size:20px; padding:8px; border-radius:8px; }
-.mp-play { background:var(--main-color); color:var(--background-color); width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:50%; }
-.mp-btn.active { background: var(--main-color); color: var(--background-color); }
+
+.mp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mp-header .mp-title {
+  color: var(--text-color);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.mp-close, .mp-more {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.mp-main {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.mp-art img {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+}
+
+.mp-info { text-align: center; }
+.mp-info h3 { margin: 0; color: var(--text-color); font-size: 18px; font-weight: 700; }
+.mp-info p { margin: 0; color: var(--second-color); font-size: 13px; }
+
+.mp-progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mp-time {
+  color: var(--text-muted);
+  font-size: 11px;
+  width: 40px;
+  text-align: center;
+}
+
+.mp-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-hover);
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+}
+
+.mp-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--main-color), #b88dac);
+  border-radius: 6px;
+}
+
+.mp-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.mp-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 20px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.mp-play {
+  background: var(--main-color);
+  color: #1a1020;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 24px;
+}
+
+.mp-btn.active {
+  color: var(--main-color);
+}
+
+/* .queue-section {
+  display: none;
+} */
