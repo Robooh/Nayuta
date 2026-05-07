@@ -171,7 +171,7 @@
     width: 100%;
     height: auto;
     aspect-ratio: 16/9;
-    max-height: 220px;
+    max-height: 300px;
     object-fit: cover;
     border-radius: var(--radius-md);
   }
@@ -419,6 +419,9 @@
   /* ---- Snake game hidden on mobile ---- */
   .snake-game-container { display: none; }
 
+  /* ---- Queue hidden on mobile ---- */
+  .queue-section { display: none !important; }
+
   /* ---- Footer ---- */
   .footer-content {
     flex-direction: column;
@@ -587,6 +590,3 @@
   color: var(--main-color);
 }
 
-/* .queue-section {
-  display: none;
-} */

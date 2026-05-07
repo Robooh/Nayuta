@@ -1295,7 +1295,6 @@ body {
   display: flex;
   flex-direction: column;
   max-height: none;
-  display: block;
 }
 
 .queue-section h5 {
