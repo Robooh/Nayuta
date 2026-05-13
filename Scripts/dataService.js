@@ -18,7 +18,7 @@
     {id: 15, title: 'Don"t You See', artist: 'Dazegxd', audio: 'Src/Music/See.mp3', cover: 'Src/Card-img/See.jpg', genre: 'Electronic', timesPlayed: 1110 },
     {id: 16, title: 'Undefined', artist: 'Dazegxd', audio: 'Src/Music/Und.mp3', cover: 'Src/Card-img/Und.jpg', genre: 'Electronic', timesPlayed: 730 },
     {id: 17, title: 'Destroy Me', artist: '2hollis', audio: 'Src/Music/Destroy me.mp3', cover: 'Src/Card-img/Dest.jpg', genre: 'Electronic', timesPlayed: 530},
-    {id: 18, title: 'We could be', artist: 'Cosmograph', audio: 'Src/Music/WeC.mp3', cover: 'Src/Card-img/WeC.jpg', genre: 'Pop', timesPlayed: 2370},
+    {id: 18, title: 'We could be', artist: 'Cosmograph', audio: 'Src/Music/WeC.mp3', cover: 'Src/Card-img/WeCould.jpg', genre: 'Pop', timesPlayed: 2370},
     {id: 19, title: 'CARPE DIEM', artist: 'Naoki', audio: 'Src/Music/CARPE DIEM.mp3', cover: 'Src/Card-img/Unika.jpg', genre: 'Rock', timesPlayed: 1550},
     {id: 20, title: 'Oasis (Summer)', artist: 'YoungJee Lee', audio: 'Src/Music/Oasis.mp3', cover: 'Src/Card-img/Oasis.png', genre: 'Pop', timesPlayed: 1630},
     // {id: , title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
