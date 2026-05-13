@@ -317,80 +317,91 @@ document.addEventListener("DOMContentLoaded", function () {
   // =============================================
   // 7.5 QUEUE SYSTEM - Display playlist songs
   // =============================================
-  function updateQueueDisplay() {
+
+  // Tracks the songs currently shown in the queue
+  let currentQueueSongs = [];
+
+  function updateQueueDisplay(songsToQueue = []) {
     const queueList = document.getElementById("queue-list");
     if (!queueList) return;
 
-    const playlists = getPlaylists();
-    const allSongs = DataService.getAll() || [];
-    const allSongIds = new Set();
-    
-    // Collect all unique song IDs from all playlists
-    playlists.forEach(playlist => {
-      if (playlist.songs && Array.isArray(playlist.songs)) {
-        playlist.songs.forEach(songId => allSongIds.add(songId));
-      }
-    });
+    currentQueueSongs = songsToQueue;
 
-    if (allSongIds.size === 0) {
-      queueList.innerHTML = '<div class="queue-empty">No songs in queue</div>';
+    if (!songsToQueue || songsToQueue.length === 0) {
+      queueList.innerHTML = '<div class="queue-empty">No songs in queue. Select a playlist!</div>';
       return;
     }
 
-    // Get song objects
-    const queueSongs = allSongs.filter(song => allSongIds.has(song.id));
-    
     queueList.innerHTML = '';
-    queueSongs.forEach(song => {
+    songsToQueue.forEach((song, idx) => {
       const queueItem = document.createElement("div");
       queueItem.className = "queue-item";
       queueItem.dataset.id = song.id;
-      
-      queueItem.innerHTML = `
-        <img src="${song.cover}" alt="${song.title}" />
-        <div class="queue-item-info">
-          <h6>${song.title}</h6>
-          <p>${song.artist}</p>
-        </div>
-      `;
+      queueItem.dataset.index = idx;
+      queueItem.style.cursor = "pointer";
 
+      const img = document.createElement("img");
+      img.src = song.cover || "Src/Card-img/Blank.jpg";
+      img.alt = song.title;
+      img.onerror = function () { this.src = "Src/Card-img/Undead.jpg"; };
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "queue-item-info";
+
+      const title = document.createElement("h6");
+      title.textContent = song.title || "Unknown";
+
+      const artist = document.createElement("p");
+      artist.textContent = song.artist || "Unknown";
+
+      infoDiv.appendChild(title);
+      infoDiv.appendChild(artist);
+
+      queueItem.appendChild(img);
+      queueItem.appendChild(infoDiv);
+
+      // Click on queue item plays that song immediately
       queueItem.addEventListener("click", () => {
-        playSongFromCard(song, "queue");
-        // Highlight current song
-        document.querySelectorAll(".queue-item").forEach(item => {
-          item.classList.remove("active");
-        });
-        queueItem.classList.add("active");
+        if (player) {
+          player.playIndex(idx);
+          incrementUserPlayCount(song.id);
+          addToRecents(song.id);
+          renderTopSection();
+        }
       });
 
       queueList.appendChild(queueItem);
     });
   }
 
-  // Update queue on initial load
-  updateQueueDisplay();
+  // Highlights the active song in the queue by song id, removes previous highlight
+  function syncQueueActive(trackId) {
+    const queueList = document.getElementById("queue-list");
+    if (!queueList) return;
+    queueList.querySelectorAll(".queue-item").forEach((item) => {
+      if (item.dataset.id === String(trackId)) {
+        item.classList.add("active");
+        // Scroll the active item into view smoothly
+        item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } else {
+        item.classList.remove("active");
+      }
+    });
+  }
 
-  // Update queue when a song is added to playlist
-  document.addEventListener("playlistUpdated", () => {
-    updateQueueDisplay();
+  // Listen to the Player's native trackLoaded event to keep queue in sync
+  // This fires on: manual play, next, prev, autoplay after song ends
+  document.addEventListener("trackLoaded", (e) => {
+    const track = e.detail && e.detail.track;
+    if (track && track.id !== undefined) {
+      syncQueueActive(track.id);
+    }
   });
 
-  // Mobile: open full player overlay on compact bar tap
-  (function setupMobilePlayerTap() {
-    function addHandler() {
-      const pl = document.querySelector(".player");
-      if (!pl || pl._mobileHandlerAdded) return;
-      pl.addEventListener("click", function (e) {
-        if (window.innerWidth > 992) return;
-        if (e.target.closest("button, .player-controls, input, a, i")) return;
-        e.stopPropagation();
-        document.dispatchEvent(new CustomEvent("mobilePlayer", { detail: { source: "player" } }));
-      });
-      pl._mobileHandlerAdded = true;
-    }
-    addHandler();
-    window.addEventListener("resize", addHandler);
-  })();
+  // Initialize with an empty queue waiting for user selection
+  window.updateQueueDisplay = updateQueueDisplay;
+  window.syncQueueActive = syncQueueActive;
+  updateQueueDisplay([]);
 
   // =============================================
   // 8. SLIDESHOW / TRENDING
@@ -608,10 +619,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (pl.songs.length > 0 && player) {
           const allSongs = DataService.getAll();
           const playlistSongs = pl.songs.map((id) => allSongs.find((s) => s.id === id)).filter(Boolean);
+
+          // 1. Send data to the visual Queue system
+          updateQueueDisplay(playlistSongs);
+
+          // 2. Load the data into the backend audio player
           player.loadList(playlistSongs);
-          player.playIndex(0);
+          player.playIndex(0); // Auto-plays the first song in the selected playlist
         } else {
           alert("This playlist is empty!");
+          updateQueueDisplay([]); // Clear the queue visually if empty
         }
       });
 
