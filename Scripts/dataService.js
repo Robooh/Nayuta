@@ -21,10 +21,14 @@
     {id: 18, title: 'We could be', artist: 'Cosmograph', audio: 'Src/Music/WeC.mp3', cover: 'Src/Card-img/WeCould.jpg', genre: 'Pop', timesPlayed: 2370},
     {id: 19, title: 'CARPE DIEM', artist: 'Naoki', audio: 'Src/Music/CARPE DIEM.mp3', cover: 'Src/Card-img/Unika.jpg', genre: 'Rock', timesPlayed: 1550},
     {id: 20, title: 'Oasis (Summer)', artist: 'YoungJee Lee', audio: 'Src/Music/Oasis.mp3', cover: 'Src/Card-img/Oasis.png', genre: 'Pop', timesPlayed: 1630},
-    // {id: , title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
-    // {id: , title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
-    // {id: , title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
-    // {id: , title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    {id: 21, title: '新時代 ', artist: 'Ado', audio: 'Src/Music/AdoPiece.mp3', cover: 'Src/Card-img/Adou.jpg', genre: 'Pop', timesPlayed: 1420},
+    // {id: 22, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 23, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 24, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 25, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 26, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 27, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},
+    // {id: 28, title: '', artist: '', audio: '', cover: '', genre: '', timesPlayed: 0},  
   ];
 
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
