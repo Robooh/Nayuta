@@ -474,8 +474,8 @@ body {
 }
 
 .slideshow img#slide-image {
-  width: 260px;
-  height: 260px;
+  width: 320px;
+  height: 320px;
   object-fit: cover;
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(220, 187, 209, 0.1);
@@ -486,66 +486,6 @@ body {
   z-index: 1;
 }
 
-.slideshow img#slide-image:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.8);
-}
-
-.slideshow-info {
-  text-align: center;
-  padding: 10px 0 0 0;
-}
-
-.slideshow-info h4 {
-  font-size: 1.1em;
-  color: var(--main-color);
-}
-
-.slideshow-info p {
-  font-size: 0.85em;
-  color: var(--second-color);
-}
-
-/* Slideshow dots */
-.slide-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.slide-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--border-color);
-  transition: background var(--transition), width var(--transition);
-}
-
-.slide-dot.active {
-  background: var(--main-color);
-  width: 18px;
-  border-radius: 3px;
-}
-
-/* Slide nav arrows */
-.slide-nav {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: border-color var(--transition), background var(--transition);
-}
-
-.slide-nav:hover {
-  border-color: var(--main-color);
-  background: var(--main-color-subtle);
-}
 
 /* =============================================
    LISTS SECTION HEADER & TABS
